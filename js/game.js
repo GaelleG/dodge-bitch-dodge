@@ -12,10 +12,10 @@ var BOX_NB_X = Math.floor(CANVAS_WIDTH/BOX_SIZE);
 var BOX_NB_Y = Math.floor(CANVAS_HEIGHT/BOX_SIZE);
 var ENEMY_MAX_SIZE = 3;
 var VIEWPORT_BOUNDS = {
-  left: -CANVAS_WIDTH/2 - ENEMY_MAX_SIZE*BOX_SIZE,
-  top: -CANVAS_HEIGHT/2 - ENEMY_MAX_SIZE*BOX_SIZE,
-  right: CANVAS_WIDTH/2 + ENEMY_MAX_SIZE*BOX_SIZE,
-  bottom: CANVAS_HEIGHT/2 + ENEMY_MAX_SIZE*BOX_SIZE,
+  left: -ENEMY_MAX_SIZE*BOX_SIZE,
+  top: -ENEMY_MAX_SIZE*BOX_SIZE,
+  right: CANVAS_WIDTH + ENEMY_MAX_SIZE*BOX_SIZE*2,
+  bottom: CANVAS_HEIGHT + ENEMY_MAX_SIZE*BOX_SIZE*2,
 };
 var DIRECTION = {
   left:
@@ -23,9 +23,9 @@ var DIRECTION = {
   right:
     { x:1, y:0 },
   top:
-    { x:0, y:1 },
-  bottom:
     { x:0, y:-1 },
+  bottom:
+    { x:0, y:1 },
 };
 
 // ---------------------------------------------------------------------- GLOBAL
@@ -46,10 +46,10 @@ var canvas;
 // ---------------------------------------------------------------------- PLAYER
 function setPlayer() {
   player = [
-    -BOX_SIZE/2, BOX_SIZE/2, 0.0,
-    BOX_SIZE/2, BOX_SIZE/2, 0.0,
-    -BOX_SIZE/2, -BOX_SIZE/2, 0.0,
-    BOX_SIZE/2, -BOX_SIZE/2, 0.0,
+    CANVAS_WIDTH/2 - BOX_SIZE/2, CANVAS_HEIGHT/2 - BOX_SIZE/2, 0.0,
+    CANVAS_WIDTH/2 + BOX_SIZE/2, CANVAS_HEIGHT/2 - BOX_SIZE/2, 0.0,
+    CANVAS_WIDTH/2 - BOX_SIZE/2, CANVAS_HEIGHT/2 + BOX_SIZE/2, 0.0,
+    CANVAS_WIDTH/2 + BOX_SIZE/2, CANVAS_HEIGHT/2 + BOX_SIZE/2, 0.0,
   ];
   vertices.unshift(player);
 }
@@ -140,11 +140,9 @@ function getRandomVertice(left, top, box_nb_x, box_nb_y) {
   randSize.y *= BOX_SIZE;
   randPosition.x += left;
   randPosition.x *= BOX_SIZE;
-  randPosition.x -= CANVAS_WIDTH/2;
   randPosition.x += enemyMove.x;
   randPosition.y += top;
   randPosition.y *= BOX_SIZE;
-  randPosition.y -= CANVAS_HEIGHT/2;
   randPosition.y += enemyMove.y;
   var vertice = [
     randPosition.x, randPosition.y, 0.0,

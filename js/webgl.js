@@ -65,7 +65,7 @@ function initBuffers() {
 function drawScene() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   
-  perspectiveMatrix = makeOrtho(-canvas.width/2, canvas.width/2, -canvas.height/2, canvas.height/2, 0.1, 100);
+  perspectiveMatrix = makeOrtho(0, canvas.width, canvas.height, 0, 0.1, 100);
 
   loadIdentity();
   
