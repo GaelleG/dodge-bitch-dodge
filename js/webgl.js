@@ -32,7 +32,7 @@ function start() {
         initBuffers();
         drawScene();
       },
-    1000);
+    16);
   }
 }
 

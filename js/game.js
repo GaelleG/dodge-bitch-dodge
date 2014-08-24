@@ -7,6 +7,7 @@ var CANVAS_HEIGHT =
   BOX_SIZE * Math.floor(Math.max(document.documentElement.clientHeight, window.innerHeight || 0) / BOX_SIZE);
 var BOX_NB_X = Math.floor(CANVAS_WIDTH/20);
 var BOX_NB_Y = Math.floor(CANVAS_HEIGHT/20);
+var ENEMY_MAX_SIZE = 3;
 
 function setEnemy() {
   vertices.push(getRandomVertice());
@@ -22,8 +23,8 @@ function getRandomVertice() {
     y: BOX_NB_Y-1,
   };
   var randSize = {
-    x: Math.round(Math.random() * (3 - min.x+1) + min.x+1), 
-    y: Math.round(Math.random() * (3 - min.y+1) + min.y+1),
+    x: Math.round(Math.random() * (ENEMY_MAX_SIZE - min.x+1) + min.x+1), 
+    y: Math.round(Math.random() * (ENEMY_MAX_SIZE - min.y+1) + min.y+1),
   };
   max.x -= randSize.x;
   max.y -= randSize.y;
@@ -46,9 +47,46 @@ function getRandomVertice() {
   return vertice;
 }
 
+function moveEnemies(delta) {
+  for (var i=0; i<vertices.length; i++) {
+    var move = -0.05*delta;
+    var moveVertice = [
+      move, 0, 0,
+      move, 0, 0,
+      move, 0, 0,
+      move, 0, 0,
+    ];
+    vertices[i] = addMatrix(vertices[i], moveVertice);
+  }
+}
+
+function addMatrix(m1, m2) {
+  if (m1.length != m2.length) {
+    return m1;
+  }
+  var vertice = [];
+  for (var i=0; i<m1.length && i<m2.length; i++) {
+    vertice.push(m1[i] + m2[i]);
+  }
+  return vertice;
+}
+
 setInterval(
   function() {
     setEnemy();
   },
   1000
+);
+
+var delta = 0;
+var oldTime = Date.now();
+var newTime = Date.now();
+setInterval(
+  function() {
+    newTime = Date.now();
+    delta = newTime - oldTime;
+    oldTime = newTime;
+    moveEnemies(delta);
+  },
+  16
 );
