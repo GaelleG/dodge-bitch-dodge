@@ -28,7 +28,6 @@ function start() {
     
     setInterval(
       function() {
-        initShaders();
         initBuffers();
         drawScene();
       },
@@ -51,8 +50,13 @@ function initWebGL() {
 }
 
 function initBuffers() {
-  for (var i=0; i<vertices.length; i++) {
+  while (squareVerticesBuffers.length > vertices.length) {
+    squareVerticesBuffers.pop();
+  }
+  for (var i=squareVerticesBuffers.length; i<vertices.length; i++) {
     squareVerticesBuffers.push(gl.createBuffer());
+  }
+  for (var i=0; i<vertices.length; i++) {
     gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffers[i]);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices[i]), gl.STATIC_DRAW);
   }

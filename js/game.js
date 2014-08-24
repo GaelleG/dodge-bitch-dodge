@@ -8,6 +8,12 @@ var CANVAS_HEIGHT =
 var BOX_NB_X = Math.floor(CANVAS_WIDTH/20);
 var BOX_NB_Y = Math.floor(CANVAS_HEIGHT/20);
 var ENEMY_MAX_SIZE = 3;
+var VIEWPORT_BOUNDS = {
+  left: -CANVAS_WIDTH/2 - ENEMY_MAX_SIZE*BOX_SIZE,
+  top: -CANVAS_HEIGHT/2 - ENEMY_MAX_SIZE*BOX_SIZE,
+  right: CANVAS_WIDTH/2 + ENEMY_MAX_SIZE*BOX_SIZE,
+  bottom: CANVAS_HEIGHT/2 + ENEMY_MAX_SIZE*BOX_SIZE,
+};
 
 function setEnemy() {
   vertices.push(getRandomVertice());
@@ -48,6 +54,7 @@ function getRandomVertice() {
 }
 
 function moveEnemies(delta) {
+  var toDelete = [];
   for (var i=0; i<vertices.length; i++) {
     var move = -0.05*delta;
     var moveVertice = [
@@ -57,6 +64,12 @@ function moveEnemies(delta) {
       move, 0, 0,
     ];
     vertices[i] = addMatrix(vertices[i], moveVertice);
+    if (outOfBounds(vertices[i], VIEWPORT_BOUNDS)) {
+      toDelete.unshift(i);
+    }
+  }
+  for (var i=0; i<toDelete.length; i++) {
+    vertices.splice(toDelete[i], 1);
   }
 }
 
@@ -69,6 +82,17 @@ function addMatrix(m1, m2) {
     vertice.push(m1[i] + m2[i]);
   }
   return vertice;
+}
+
+function outOfBounds(vertice4, bounds) {
+  for (var i=0; i<vertice4.length; i+=3) {
+    var vertex = vertice4.slice(i, i+2);
+    if (vertex[0] > bounds.left && vertex[0] < bounds.right &&
+        vertex[1] > bounds.top && vertex[1] < bounds.bottom) {
+      return false;
+    }
+  }
+  return true;
 }
 
 setInterval(
