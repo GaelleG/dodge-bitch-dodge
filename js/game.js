@@ -14,6 +14,16 @@ var VIEWPORT_BOUNDS = {
   right: CANVAS_WIDTH/2 + ENEMY_MAX_SIZE*BOX_SIZE,
   bottom: CANVAS_HEIGHT/2 + ENEMY_MAX_SIZE*BOX_SIZE,
 };
+var DIRECTION = {
+  left:
+    { x:-1, y:0 },
+  right:
+    { x:1, y:0 },
+  top:
+    { x:0, y:1 },
+  bottom:
+    { x:0, y:-1 },
+};
 
 function setEnemy() {
   vertices.push(getRandomVertice());
@@ -53,15 +63,18 @@ function getRandomVertice() {
   return vertice;
 }
 
-function moveEnemies(delta) {
+function moveEnemies(delta, direction) {
   var toDelete = [];
   for (var i=0; i<vertices.length; i++) {
-    var move = -0.05*delta;
+    var move = {
+      x: direction.x * 0.05*delta,
+      y: direction.y * 0.05*delta,
+    };
     var moveVertice = [
-      move, 0, 0,
-      move, 0, 0,
-      move, 0, 0,
-      move, 0, 0,
+      move.x, move.y, 0,
+      move.x, move.y, 0,
+      move.x, move.y, 0,
+      move.x, move.y, 0,
     ];
     vertices[i] = addMatrix(vertices[i], moveVertice);
     if (outOfBounds(vertices[i], VIEWPORT_BOUNDS)) {
@@ -95,6 +108,25 @@ function outOfBounds(vertice4, bounds) {
   return true;
 }
 
+var direction = null;
+var lastDirectionChange = 0;
+function getRandomDirection(delta) {
+  lastDirectionChange += delta;
+  if (direction != null && lastDirectionChange < 1000) {
+    return direction;
+  }
+  lastDirectionChange -= 1000;
+  if (direction == null || Math.floor(Math.random() * 10) == 0) {
+    var keys = Object.keys(DIRECTION);
+    var newDirection;
+    do {
+      newDirection = DIRECTION[keys[Math.floor(Math.random() * keys.length)]];
+    } while (newDirection == direction);
+    direction = newDirection;
+  }
+  return direction;
+}
+
 setInterval(
   function() {
     setEnemy();
@@ -110,7 +142,7 @@ setInterval(
     newTime = Date.now();
     delta = newTime - oldTime;
     oldTime = newTime;
-    moveEnemies(delta);
+    moveEnemies(delta, getRandomDirection(delta));
   },
   16
 );
