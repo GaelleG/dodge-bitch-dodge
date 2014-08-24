@@ -24,6 +24,10 @@ var DIRECTION = {
   bottom:
     { x:0, y:-1 },
 };
+var globalMove = {
+  x: 0.0,
+  y: 0.0
+};
 
 function setEnemy() {
   vertices.push(getRandomVertice());
@@ -55,27 +59,28 @@ function getRandomVertice() {
   randPosition.y *= BOX_SIZE;
   randPosition.y -= CANVAS_HEIGHT/2;
   var vertice = [
-    randPosition.x, randPosition.y, 0.0,
-    randPosition.x + randSize.x, randPosition.y, 0.0,
-    randPosition.x, randPosition.y + randSize.y, 0.0,
-    randPosition.x + randSize.x, randPosition.y + randSize.y, 0.0,
+    randPosition.x + globalMove.x, randPosition.y + globalMove.y, 0.0,
+    randPosition.x + randSize.x + globalMove.x, randPosition.y + globalMove.y, 0.0,
+    randPosition.x + globalMove.x, randPosition.y + randSize.y + globalMove.y, 0.0,
+    randPosition.x + randSize.x + globalMove.x, randPosition.y + randSize.y + globalMove.y, 0.0,
   ];
   return vertice;
 }
 
 function moveEnemies(delta, direction) {
   var toDelete = [];
+  var move = {
+    x: direction.x * 0.05*delta,
+    y: direction.y * 0.05*delta,
+  };
+  setGlobalMove(move);
+  var moveVertice = [
+    move.x, move.y, 0,
+    move.x, move.y, 0,
+    move.x, move.y, 0,
+    move.x, move.y, 0,
+  ];
   for (var i=0; i<vertices.length; i++) {
-    var move = {
-      x: direction.x * 0.05*delta,
-      y: direction.y * 0.05*delta,
-    };
-    var moveVertice = [
-      move.x, move.y, 0,
-      move.x, move.y, 0,
-      move.x, move.y, 0,
-      move.x, move.y, 0,
-    ];
     vertices[i] = addMatrix(vertices[i], moveVertice);
     if (outOfBounds(vertices[i], VIEWPORT_BOUNDS)) {
       toDelete.unshift(i);
@@ -127,11 +132,18 @@ function getRandomDirection(delta) {
   return direction;
 }
 
+function setGlobalMove(move) {
+  globalMove.x += move.x;
+  globalMove.y += move.y;
+  globalMove.x %= BOX_SIZE;
+  globalMove.y %= BOX_SIZE;
+}
+
 setInterval(
   function() {
     setEnemy();
   },
-  1000
+  500
 );
 
 var delta = 0;
