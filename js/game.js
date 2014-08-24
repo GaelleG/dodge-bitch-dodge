@@ -8,8 +8,8 @@ var CANVAS_WIDTH =
   BOX_SIZE * Math.floor(Math.max(document.documentElement.clientWidth, window.innerWidth || 0) / BOX_SIZE);
 var CANVAS_HEIGHT = 
   BOX_SIZE * Math.floor(Math.max(document.documentElement.clientHeight, window.innerHeight || 0) / BOX_SIZE);
-var BOX_NB_X = Math.floor(CANVAS_WIDTH/20);
-var BOX_NB_Y = Math.floor(CANVAS_HEIGHT/20);
+var BOX_NB_X = Math.floor(CANVAS_WIDTH/BOX_SIZE);
+var BOX_NB_Y = Math.floor(CANVAS_HEIGHT/BOX_SIZE);
 var ENEMY_MAX_SIZE = 3;
 var VIEWPORT_BOUNDS = {
   left: -CANVAS_WIDTH/2 - ENEMY_MAX_SIZE*BOX_SIZE,
@@ -30,13 +30,14 @@ var DIRECTION = {
 
 // ---------------------------------------------------------------------- GLOBAL
 var vertices = [];
-var player = [];
-var playerDirection = { x:0, y:0 };
-var canvas;
-var globalMove = {
+var enemyDirection = null;
+var enemyMove = {
   x: 0.0,
   y: 0.0
 };
+var player = [];
+var playerDirection = { x:0, y:0 };
+var canvas;
 
 // =============================================================================
 //                                   FUNCTIONS
@@ -72,7 +73,23 @@ function movePlayer(delta) {
 
 // --------------------------------------------------------------------- ENEMIES
 function setEnemy() {
-  vertices.push(getRandomVertice());
+  var left = 0;
+  if (enemyDirection.x < 0) {
+    left = BOX_NB_X + 1;
+  }
+  else if (enemyDirection.x > 0) {
+    left = - (ENEMY_MAX_SIZE + 1); 
+  }
+  var top = 0;
+  if (enemyDirection.y < 0) {
+    top = BOX_NB_Y + 1;
+  }
+  else if (enemyDirection.y > 0) {
+    top = - (ENEMY_MAX_SIZE + 1);
+  }
+  var box_nb_x = (left == 0) ? BOX_NB_X : ENEMY_MAX_SIZE;
+  var box_nb_y = (top == 0) ? BOX_NB_Y : ENEMY_MAX_SIZE;
+  vertices.push(getRandomVertice(left, top, box_nb_x, box_nb_y));
 }
 
 function moveEnemies(delta, direction) {
@@ -100,36 +117,40 @@ function moveEnemies(delta, direction) {
 }
 
 // -------------------------------------------------------------------- VERTICES
-function getRandomVertice() {
+function getRandomVertice(left, top, box_nb_x, box_nb_y) {
   var min = {
     x: 0,
     y: 0,
   };
   var max = {
-    x: BOX_NB_X-1,
-    y: BOX_NB_Y-1,
+    x: box_nb_x-1,
+    y: box_nb_y-1,
   };
   var randSize = {
-    x: Math.round(Math.random() * (ENEMY_MAX_SIZE - min.x+1) + min.x+1), 
-    y: Math.round(Math.random() * (ENEMY_MAX_SIZE - min.y+1) + min.y+1),
+    x: Math.round(Math.random() * (ENEMY_MAX_SIZE - 1) + 1),
+    y: Math.round(Math.random() * (ENEMY_MAX_SIZE - 1) + 1),
   };
   max.x -= randSize.x;
   max.y -= randSize.y;
   var randPosition = {
-    x: Math.round(Math.random() * (max.x - min.x) + min.x), 
-    y: Math.round(Math.random() * (max.y - min.y) + min.y), 
+    x: Math.round(Math.random() * max.x),
+    y: Math.round(Math.random() * max.y),
   };
   randSize.x *= BOX_SIZE;
   randSize.y *= BOX_SIZE;
+  randPosition.x += left;
   randPosition.x *= BOX_SIZE;
   randPosition.x -= CANVAS_WIDTH/2;
+  randPosition.x += enemyMove.x;
+  randPosition.y += top;
   randPosition.y *= BOX_SIZE;
   randPosition.y -= CANVAS_HEIGHT/2;
+  randPosition.y += enemyMove.y;
   var vertice = [
-    randPosition.x + globalMove.x, randPosition.y + globalMove.y, 0.0,
-    randPosition.x + randSize.x + globalMove.x, randPosition.y + globalMove.y, 0.0,
-    randPosition.x + globalMove.x, randPosition.y + randSize.y + globalMove.y, 0.0,
-    randPosition.x + randSize.x + globalMove.x, randPosition.y + randSize.y + globalMove.y, 0.0,
+    randPosition.x, randPosition.y, 0.0,
+    randPosition.x + randSize.x, randPosition.y, 0.0,
+    randPosition.x, randPosition.y + randSize.y, 0.0,
+    randPosition.x + randSize.x, randPosition.y + randSize.y, 0.0,
   ];
   return vertice;
 }
@@ -157,27 +178,26 @@ function outOfBounds(vertice4, bounds) {
 }
 
 // ------------------------------------------------------------------------ MOVE
-var direction = null;
 var lastDirectionChange = 0;
 function getRandomDirection(delta) {
   lastDirectionChange += delta;
-  if (direction != null && lastDirectionChange < 1000) {
-    return direction;
+  if (enemyDirection != null && lastDirectionChange < 1000) {
+    return enemyDirection;
   }
   lastDirectionChange -= 1000;
-  if (direction == null || Math.floor(Math.random() * 10) == 0) {
+  if (enemyDirection == null || Math.floor(Math.random() * 10) == 0) {
     var keys = Object.keys(DIRECTION);
     var newDirection;
     do {
       newDirection = DIRECTION[keys[Math.floor(Math.random() * keys.length)]];
-    } while (newDirection == direction);
-    direction = newDirection;
+    } while (newDirection == enemyDirection);
+    enemyDirection = newDirection;
   }
-  return direction;
+  return enemyDirection;
 }
 
 function setGlobalMove(move) {
-  addMoves(globalMove, move, BOX_SIZE);
+  addMoves(enemyMove, move, BOX_SIZE);
 }
 
 function addMoves(move1, move2, modulo, clamp) {
