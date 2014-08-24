@@ -18,7 +18,7 @@ function start() {
   initWebGL(canvas);
   
   if (gl) {
-    gl.clearColor(0.2, 0.2, 0.2, 1.0);
+    gl.clearColor(0.95, 0.95, 0.95, 1.0);
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
