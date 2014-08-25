@@ -24,11 +24,11 @@ function start() {
     gl.depthFunc(gl.LEQUAL);
     
     initShaders();
-    initBuffers();
+    updateBuffers();
     
     setInterval(
       function() {
-        initBuffers();
+        updateBuffers();
         drawScene();
       },
     16);
@@ -49,7 +49,7 @@ function initWebGL() {
   }
 }
 
-function initBuffers() {
+function updateBuffers() {
   while (squareVerticesBuffers.length > vertices.length) {
     squareVerticesBuffers.pop();
   }

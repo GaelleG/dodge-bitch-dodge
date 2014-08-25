@@ -175,6 +175,52 @@ function outOfBounds(vertice4, bounds) {
   return true;
 }
 
+function collision(v1, v2) {
+  var edges1 = getVerticeEdges(v1);
+  var edges2 = getVerticeEdges(v2);
+  if (edges1.top >= edges2.top && edges1.top <= edges2.bottom &&
+      edges1.left >= edges2.left && edges1.left <= edges2.right) {
+    return true;
+  }
+  if (edges1.top >= edges2.top && edges1.top <= edges2.bottom &&
+      edges1.right >= edges2.left && edges1.right <= edges2.right) {
+    return true;
+  }
+  if (edges1.bottom >= edges2.top && edges1.bottom <= edges2.bottom &&
+      edges1.left >= edges2.left && edges1.left <= edges2.right) {
+    return true;
+  }
+  if (edges1.bottom >= edges2.top && edges1.bottom <= edges2.bottom &&
+      edges1.right >= edges2.left && edges1.right <= edges2.right) {
+    return true;
+  }
+  return false;
+}
+
+function getVerticeEdges(vertice) {
+  var edges = { left:0, top:0, bottom:0, right:0 };
+  for (var i=0; i<vertice.length; i+=3) {
+    var vertex = vertice.slice(i, i+2);
+    if (i == 0) {
+      edges.left = vertex[0];
+      edges.right = vertex[0];
+      edges.top = vertex[1];
+      edges.bottom = vertex[1];
+    }
+    else {
+      if (vertex[0] < edges.left)
+        edges.left = vertex[0];
+      if (vertex[0] > edges.right)
+        edges.right = vertex[0];
+      if (vertex[1] < edges.top)
+        edges.top = vertex[1];
+      if (vertex[1] > edges.bottom)
+        edges.bottom = vertex[1];
+    }
+  }
+  return edges;
+}
+
 // ------------------------------------------------------------------------ MOVE
 var lastDirectionChange = 0;
 function getRandomDirection(delta) {
@@ -243,6 +289,11 @@ setInterval(
     oldTime = newTime;
     moveEnemies(delta, getRandomDirection(delta));
     movePlayer(delta);
+    for (var i=1; i<vertices.length; i++) {
+      if (collision(vertices[0],vertices[i])) {
+        console.log("collision");
+      }
+    }
   },
   16
 );
