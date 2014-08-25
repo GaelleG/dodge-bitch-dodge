@@ -72,7 +72,15 @@ function movePlayer(delta) {
 }
 
 // --------------------------------------------------------------------- ENEMIES
-function setEnemy() {
+var lastEnemySet = 0;
+function setEnemy(delta) {
+  lastEnemySet += delta;
+  if (lastEnemySet < 500) {
+    return enemyDirection;
+  }
+  else {
+    lastEnemySet -= 500;
+  }
   var left = 0;
   if (enemyDirection.x < 0) {
     left = BOX_NB_X + 1;
@@ -272,13 +280,8 @@ function addMoves(move1, move2, modulo, clamp) {
 // =============================================================================
 
 setPlayer();
-setInterval(
-  function() {
-    setEnemy();
-  },
-  500
-);
 
+// ------------------------------------------------------------------- GAME LOOP
 var delta = 0;
 var oldTime = Date.now();
 var newTime = Date.now();
@@ -287,6 +290,7 @@ setInterval(
     newTime = Date.now();
     delta = newTime - oldTime;
     oldTime = newTime;
+    setEnemy(delta);
     moveEnemies(delta, getRandomDirection(delta));
     movePlayer(delta);
     for (var i=1; i<vertices.length; i++) {
@@ -298,6 +302,7 @@ setInterval(
   16
 );
 
+// ---------------------------------------------------------------------- EVENTS
 window.addEventListener("keydown", function (event) {
   if (event.defaultPrevented) {
     return;
