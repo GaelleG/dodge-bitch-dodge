@@ -23,6 +23,11 @@
             }
         </script>
         <style>
+            body,
+            button {
+                font-family: "Trebuchet MS", Arial;
+                text-transform: uppercase;
+            }
             body {
                 width:  100vw;
                 height: 100vh;
@@ -35,11 +40,47 @@
                 text-align: center;
                 background-color: #111111;
             }
+            #hub {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width:  100vw;
+                height: 100vh;
+            }
+            #hub > div {
+                width:  100vw;
+                height: 100vh;
+                display: table-cell;
+                vertical-align: middle;
+                font-size: 30px;
+            }
+            h1 {
+                font-size: 30px;
+            }
+            button {
+                background-color: #774c54;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                font-size: 16px;
+                font-weight: normal;
+                cursor: pointer;
+                outline: none;
+            }
+            button:active {
+                background-color: #5e3b41;
+            }
         </style>
     </head>
-    <body onload="start()">
+    <body onload="loadGame();start()">
         <canvas id="glcanvas">
             Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.
         </canvas>
+        <div id="hub">
+            <div id="playscreen">
+                <h1>dodge bitch dodge</h1>
+                <button id="play">play</button>
+            </div>
+        </div>
     </body>
 </html>

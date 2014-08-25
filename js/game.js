@@ -38,10 +38,21 @@ var enemyMove = {
 var player = [];
 var playerDirection = { x:0, y:0 };
 var canvas;
+var playscreen;
+var playEl;
+
+function loadGame() {
 
 // =============================================================================
 //                                   FUNCTIONS
 // =============================================================================
+
+// ------------------------------------------------------------------------- DOM
+canvas = document.getElementById("glcanvas");
+canvas.width = CANVAS_WIDTH;
+canvas.height = CANVAS_HEIGHT;
+playscreen = document.getElementById("playscreen");
+playEl = document.getElementById("play");
 
 // ---------------------------------------------------------------------- PLAYER
 function setPlayer() {
@@ -275,32 +286,42 @@ function addMoves(move1, move2, modulo, clamp) {
   }
 }
 
+// ------------------------------------------------------------------------ GAME
+var gameLoop;
+function startGame() {
+  playscreen.style.display = "none";
+  setPlayer();
+  var delta = 0;
+  var oldTime = Date.now();
+  var newTime = Date.now();
+  gameLoop = setInterval(
+    function() {
+      newTime = Date.now();
+      delta = newTime - oldTime;
+      oldTime = newTime;
+      setEnemy(delta);
+      moveEnemies(delta, getRandomDirection(delta));
+      movePlayer(delta);
+      for (var i=1; i<vertices.length; i++) {
+        if (collision(vertices[0],vertices[i])) {
+          stopGame();
+        }
+      }
+    },
+    16
+  );
+}
+
+function stopGame() {
+  clearInterval(gameLoop);
+  vertices = [];
+  playscreen.style.display = "table-cell";
+}
+
 // =============================================================================
 //                                FUNCTIONS CALL
 // =============================================================================
 
-setPlayer();
-
-// ------------------------------------------------------------------- GAME LOOP
-var delta = 0;
-var oldTime = Date.now();
-var newTime = Date.now();
-setInterval(
-  function() {
-    newTime = Date.now();
-    delta = newTime - oldTime;
-    oldTime = newTime;
-    setEnemy(delta);
-    moveEnemies(delta, getRandomDirection(delta));
-    movePlayer(delta);
-    for (var i=1; i<vertices.length; i++) {
-      if (collision(vertices[0],vertices[i])) {
-        console.log("collision");
-      }
-    }
-  },
-  16
-);
 
 // ---------------------------------------------------------------------- EVENTS
 window.addEventListener("keydown", function (event) {
@@ -348,3 +369,9 @@ window.addEventListener("keyup", function (event) {
   }
   event.preventDefault();
 }, true);
+
+playEl.addEventListener("click", function (event) {
+  startGame();
+});
+
+}

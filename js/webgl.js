@@ -11,10 +11,6 @@ var vertexPositionAttribute;
 var perspectiveMatrix;
 
 function start() {
-  canvas = document.getElementById("glcanvas");
-  canvas.width = CANVAS_WIDTH;
-  canvas.height = CANVAS_HEIGHT;
-
   initWebGL(canvas);
   
   if (gl) {
