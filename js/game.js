@@ -12,10 +12,16 @@ var BOX_NB_X = Math.floor(CANVAS_WIDTH/BOX_SIZE);
 var BOX_NB_Y = Math.floor(CANVAS_HEIGHT/BOX_SIZE);
 var ENEMY_MAX_SIZE = 3;
 var VIEWPORT_BOUNDS = {
-  left: -ENEMY_MAX_SIZE*BOX_SIZE,
-  top: -ENEMY_MAX_SIZE*BOX_SIZE,
-  right: CANVAS_WIDTH + ENEMY_MAX_SIZE*BOX_SIZE*2,
-  bottom: CANVAS_HEIGHT + ENEMY_MAX_SIZE*BOX_SIZE*2,
+  left: 0,
+  top: 0,
+  right: CANVAS_WIDTH,
+  bottom: CANVAS_HEIGHT,
+};
+var ENEMY_VIEWPORT_BOUNDS = {
+  left: VIEWPORT_BOUNDS.left - ENEMY_MAX_SIZE*BOX_SIZE,
+  top: VIEWPORT_BOUNDS.top - ENEMY_MAX_SIZE*BOX_SIZE,
+  right: VIEWPORT_BOUNDS.right + ENEMY_MAX_SIZE*BOX_SIZE,
+  bottom: VIEWPORT_BOUNDS.bottom + ENEMY_MAX_SIZE*BOX_SIZE,
 };
 var DIRECTION = {
   left:
@@ -79,7 +85,8 @@ function movePlayer(delta) {
     move.x, move.y, 0,
     move.x, move.y, 0,
   ];
-  vertices[0] = addMatrix(vertices[0], moveVertice);
+  vertices[0] = addMatrix(vertices[0], moveVertice, VIEWPORT_BOUNDS);
+
 }
 
 // --------------------------------------------------------------------- ENEMIES
@@ -95,14 +102,14 @@ function setEnemy(delta) {
   }
   var left = 0;
   if (enemyDirection.x < 0) {
-    left = BOX_NB_X + 1;
+    left = BOX_NB_X + 2;
   }
   else if (enemyDirection.x > 0) {
     left = - (ENEMY_MAX_SIZE + 1); 
   }
   var top = 0;
   if (enemyDirection.y < 0) {
-    top = BOX_NB_Y + 1;
+    top = BOX_NB_Y + 2;
   }
   else if (enemyDirection.y > 0) {
     top = - (ENEMY_MAX_SIZE + 1);
@@ -127,7 +134,7 @@ function moveEnemies(delta, direction) {
   ];
   for (var i=1; i<vertices.length; i++) {
     vertices[i] = addMatrix(vertices[i], moveVertice);
-    if (outOfBounds(vertices[i], VIEWPORT_BOUNDS)) {
+    if (outOfBounds(vertices[i], ENEMY_VIEWPORT_BOUNDS)) {
       toDelete.unshift(i);
     }
   }
@@ -173,13 +180,44 @@ function getRandomVertice(left, top, box_nb_x, box_nb_y) {
   return vertice;
 }
 
-function addMatrix(m1, m2) {
+function addMatrix(m1, m2, bounds) {
   if (m1.length != m2.length) {
     return m1;
   }
+  var clamp = {
+    x: 0.0,
+    y: 0.0,
+  };
+  if (bounds !== undefined) {
+    for (var i=0; i<m1.length && i<m2.length; i++) {
+      if (i%3 == 0) {
+        if (m1[i] + m2[i] < bounds.left && clamp.x <= 0) {
+          clamp.x -= m1[i] + m2[i] + bounds.left;
+        }
+        if (m1[i] + m2[i] > bounds.right && clamp.x >= 0) {
+          clamp.x -= m1[i] + m2[i] - bounds.right;
+        }
+      }
+      if (i%3 == 1) {
+        if (m1[i] + m2[i] < bounds.top && clamp.y <= 0) {
+          clamp.y -= m1[i] + m2[i] + bounds.top;
+        }
+        if (m1[i] + m2[i] > bounds.bottom && clamp.y >= 0) {
+          clamp.y -= m1[i] + m2[i] - bounds.bottom;
+        }
+      }
+    }
+  }
   var vertice = [];
   for (var i=0; i<m1.length && i<m2.length; i++) {
-    vertice.push(m1[i] + m2[i]);
+    var newPos = m1[i] + m2[i];
+    if (i%3 == 0) {
+      newPos += clamp.x;
+    }
+    if (i%3 == 1) {
+      newPos += clamp.y;
+    }
+    vertice.push(newPos);
   }
   return vertice;
 }
