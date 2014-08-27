@@ -6,7 +6,9 @@
 var gl;
 var squareVerticesBuffers = [];
 var mvMatrix;
-var shaderProgram;
+var fragmentProgramEnemy;
+var fragmentProgramPlayer;
+var currentProgram;
 var vertexPositionAttribute;
 var perspectiveMatrix;
 
@@ -18,6 +20,8 @@ function start() {
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.enable(gl.BLEND);
     
     initShaders();
     updateBuffers();
@@ -60,15 +64,23 @@ function updateBuffers() {
 
 function drawScene() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  
-  perspectiveMatrix = makeOrtho(0, canvas.width, canvas.height, 0, 0.1, 100);
 
-  loadIdentity();
-  
-  mvTranslate([-0.0, 0.0, -6.0]);
-
-  setMatrixUniforms();
   for (var i=0; i<squareVerticesBuffers.length; i++) {
+    if (i < 2) {
+      if (i == 0) {
+        currentProgram = fragmentProgramPlayer;
+      }
+      else if (i == 1) {
+        currentProgram = fragmentProgramEnemy;
+      }
+      gl.useProgram(currentProgram);
+      perspectiveMatrix = makeOrtho(0, canvas.width, canvas.height, 0, 0.1, 100);
+      loadIdentity();
+      mvTranslate([-0.0, 0.0, -6.0]);
+      setMatrixUniforms();
+      vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
+      gl.enableVertexAttribArray(vertexPositionAttribute);
+    }
     gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffers[i]);
     gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -76,22 +88,29 @@ function drawScene() {
 }
 
 function initShaders() {
-  var fragmentShader = getShader(gl, "shader-fs");
+  var fragmentShaderEnemy = getShader(gl, "shader-fs-enemy");
+  var fragmentShaderPlayer = getShader(gl, "shader-fs-player");
   var vertexShader = getShader(gl, "shader-vs");
   
-  shaderProgram = gl.createProgram();
-  gl.attachShader(shaderProgram, vertexShader);
-  gl.attachShader(shaderProgram, fragmentShader);
-  gl.linkProgram(shaderProgram);
-  
-  if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+  // enemy
+  fragmentProgramEnemy = gl.createProgram();
+  gl.attachShader(fragmentProgramEnemy, vertexShader);
+  gl.attachShader(fragmentProgramEnemy, fragmentShaderEnemy);
+  gl.linkProgram(fragmentProgramEnemy);
+
+  if (!gl.getProgramParameter(fragmentProgramEnemy, gl.LINK_STATUS)) {
     alert("Unable to initialize the shader program.");
   }
-  
-  gl.useProgram(shaderProgram);
-  
-  vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-  gl.enableVertexAttribArray(vertexPositionAttribute);
+
+  // player
+  fragmentProgramPlayer = gl.createProgram();
+  gl.attachShader(fragmentProgramPlayer, vertexShader);
+  gl.attachShader(fragmentProgramPlayer, fragmentShaderPlayer);
+  gl.linkProgram(fragmentProgramPlayer);
+
+  if (!gl.getProgramParameter(fragmentProgramPlayer, gl.LINK_STATUS)) {
+    alert("Unable to initialize the shader program.");
+  }
 }
 
 function getShader(gl, id) {
@@ -146,9 +165,9 @@ function mvTranslate(v) {
 }
 
 function setMatrixUniforms() {
-  var pUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+  var pUniform = gl.getUniformLocation(currentProgram, "uPMatrix");
   gl.uniformMatrix4fv(pUniform, false, new Float32Array(perspectiveMatrix.flatten()));
 
-  var mvUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+  var mvUniform = gl.getUniformLocation(currentProgram, "uMVMatrix");
   gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mvMatrix.flatten()));
 }
