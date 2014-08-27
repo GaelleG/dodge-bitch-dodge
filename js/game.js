@@ -84,13 +84,14 @@ function movePlayer(delta) {
 
 // --------------------------------------------------------------------- ENEMIES
 var lastEnemySet = 0;
+var enemyInterval = 10000/((BOX_NB_X > BOX_NB_Y) ? BOX_NB_X : BOX_NB_Y);
 function setEnemy(delta) {
   lastEnemySet += delta;
-  if (lastEnemySet < 500) {
+  if (lastEnemySet < enemyInterval) {
     return enemyDirection;
   }
   else {
-    lastEnemySet -= 500;
+    lastEnemySet -= enemyInterval;
   }
   var left = 0;
   if (enemyDirection.x < 0) {
