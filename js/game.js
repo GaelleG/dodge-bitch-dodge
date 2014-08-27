@@ -3,7 +3,7 @@
 // =============================================================================
 
 // ----------------------------------------------------------------------- CONST
-var BOX_SIZE = 20;
+var BOX_SIZE = 40;
 var CANVAS_WIDTH = 
   BOX_SIZE * Math.floor(Math.max(document.documentElement.clientWidth, window.innerWidth || 0) / BOX_SIZE);
 var CANVAS_HEIGHT = 
@@ -57,10 +57,10 @@ playEl = document.getElementById("play");
 // ---------------------------------------------------------------------- PLAYER
 function setPlayer() {
   player = [
-    CANVAS_WIDTH/2 - BOX_SIZE/2, CANVAS_HEIGHT/2 - BOX_SIZE/2, 0.0,
-    CANVAS_WIDTH/2 + BOX_SIZE/2, CANVAS_HEIGHT/2 - BOX_SIZE/2, 0.0,
-    CANVAS_WIDTH/2 - BOX_SIZE/2, CANVAS_HEIGHT/2 + BOX_SIZE/2, 0.0,
-    CANVAS_WIDTH/2 + BOX_SIZE/2, CANVAS_HEIGHT/2 + BOX_SIZE/2, 0.0,
+    CANVAS_WIDTH/2 - BOX_SIZE*0.5/2, CANVAS_HEIGHT/2 - BOX_SIZE*0.5/2, 0.0,
+    CANVAS_WIDTH/2 + BOX_SIZE*0.5/2, CANVAS_HEIGHT/2 - BOX_SIZE*0.5/2, 0.0,
+    CANVAS_WIDTH/2 - BOX_SIZE*0.5/2, CANVAS_HEIGHT/2 + BOX_SIZE*0.5/2, 0.0,
+    CANVAS_WIDTH/2 + BOX_SIZE*0.5/2, CANVAS_HEIGHT/2 + BOX_SIZE*0.5/2, 0.0,
   ];
   vertices.unshift(player);
 }
