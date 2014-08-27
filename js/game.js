@@ -44,8 +44,8 @@ var enemyMove = {
 var player = [];
 var playerDirection = { x:0, y:0 };
 var canvas;
-var playscreen;
-var playEl;
+var menu;
+var play;
 
 function loadGame() {
 
@@ -57,8 +57,8 @@ function loadGame() {
 canvas = document.getElementById("glcanvas");
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
-playscreen = document.getElementById("playscreen");
-playEl = document.getElementById("play");
+menu = document.getElementById("menu");
+play = document.getElementById("play");
 
 // ---------------------------------------------------------------------- PLAYER
 function setPlayer() {
@@ -150,8 +150,8 @@ function getRandomVertice(left, top, box_nb_x, box_nb_y) {
     y: 0,
   };
   var max = {
-    x: box_nb_x-1,
-    y: box_nb_y-1,
+    x: box_nb_x,
+    y: box_nb_y,
   };
   var randSize = {
     x: Math.round(Math.random() * (ENEMY_MAX_SIZE - 1) + 1),
@@ -328,7 +328,8 @@ function addMoves(move1, move2, modulo, clamp) {
 // ------------------------------------------------------------------------ GAME
 var gameLoop;
 function startGame() {
-  playscreen.style.display = "none";
+  vertices = [];
+  menu.style.display = "none";
   setPlayer();
   var delta = 0;
   var oldTime = Date.now();
@@ -354,13 +355,23 @@ function startGame() {
 function stopGame() {
   clearInterval(gameLoop);
   vertices = [];
-  playscreen.style.display = "table-cell";
+  showMenu();
+}
+
+// ------------------------------------------------------------------------ MENU
+function showMenu() {
+  menu.style.display = "table-cell";
+  vertices = [];
+  for (var i=0; i<((BOX_NB_X > BOX_NB_Y) ? BOX_NB_X*2 : BOX_NB_Y*2); i++) {
+    vertices.push(getRandomVertice(0, 0, BOX_NB_X, BOX_NB_Y));
+  }
 }
 
 // =============================================================================
 //                                FUNCTIONS CALL
 // =============================================================================
 
+showMenu();
 
 // ---------------------------------------------------------------------- EVENTS
 window.addEventListener("keydown", function (event) {
@@ -409,7 +420,7 @@ window.addEventListener("keyup", function (event) {
   event.preventDefault();
 }, true);
 
-playEl.addEventListener("click", function (event) {
+play.addEventListener("click", function (event) {
   startGame();
 });
 
