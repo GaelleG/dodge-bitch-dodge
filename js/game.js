@@ -3,11 +3,13 @@
 // =============================================================================
 
 // ----------------------------------------------------------------------- CONST
-var BOX_SIZE = 40;
-var CANVAS_WIDTH = 
-  BOX_SIZE * Math.floor(Math.max(document.documentElement.clientWidth, window.innerWidth || 0) / BOX_SIZE);
-var CANVAS_HEIGHT = 
-  BOX_SIZE * Math.floor(Math.max(document.documentElement.clientHeight, window.innerHeight || 0) / BOX_SIZE);
+var CANVAS_WIDTH = Math.min(
+  document.documentElement.clientWidth,
+  window.innerWidth,
+  document.documentElement.clientHeight, 
+  window.innerHeight);
+var CANVAS_HEIGHT = CANVAS_WIDTH;
+var BOX_SIZE = CANVAS_HEIGHT/24;
 var BOX_NB_X = Math.floor(CANVAS_WIDTH/BOX_SIZE);
 var BOX_NB_Y = Math.floor(CANVAS_HEIGHT/BOX_SIZE);
 var ENEMY_MAX_SIZE = 3;
