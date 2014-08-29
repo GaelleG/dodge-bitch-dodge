@@ -37,7 +37,7 @@ var DIRECTION = {
 };
 
 // ---------------------------------------------------------------------- GLOBAL
-var vertices = [];
+var enemies = [];
 var enemyDirection = null;
 var enemyMove = {
   x: 0.0,
@@ -70,7 +70,6 @@ function setPlayer() {
     CANVAS_WIDTH/2 - BOX_SIZE*0.5/2, CANVAS_HEIGHT/2 + BOX_SIZE*0.5/2, 0.0,
     CANVAS_WIDTH/2 + BOX_SIZE*0.5/2, CANVAS_HEIGHT/2 + BOX_SIZE*0.5/2, 0.0,
   ];
-  vertices.unshift(player);
 }
 
 function movePlayer(delta) {
@@ -87,7 +86,7 @@ function movePlayer(delta) {
     move.x, move.y, 0,
     move.x, move.y, 0,
   ];
-  vertices[0] = addMatrix(vertices[0], moveVertice, VIEWPORT_BOUNDS);
+  player = addMatrix(player, moveVertice, VIEWPORT_BOUNDS);
 
 }
 
@@ -118,7 +117,7 @@ function setEnemy(delta) {
   }
   var box_nb_x = (left == 0) ? BOX_NB_X : ENEMY_MAX_SIZE;
   var box_nb_y = (top == 0) ? BOX_NB_Y : ENEMY_MAX_SIZE;
-  vertices.push(getRandomVertice(left, top, box_nb_x, box_nb_y));
+  enemies.push(getRandomVertice(left, top, box_nb_x, box_nb_y));
 }
 
 function moveEnemies(delta, direction) {
@@ -134,14 +133,14 @@ function moveEnemies(delta, direction) {
     move.x, move.y, 0,
     move.x, move.y, 0,
   ];
-  for (var i=1; i<vertices.length; i++) {
-    vertices[i] = addMatrix(vertices[i], moveVertice);
-    if (outOfBounds(vertices[i], ENEMY_VIEWPORT_BOUNDS)) {
+  for (var i=0; i<enemies.length; i++) {
+    enemies[i] = addMatrix(enemies[i], moveVertice);
+    if (outOfBounds(enemies[i], ENEMY_VIEWPORT_BOUNDS)) {
       toDelete.unshift(i);
     }
   }
   for (var i=0; i<toDelete.length; i++) {
-    vertices.splice(toDelete[i], 1);
+    enemies.splice(toDelete[i], 1);
   }
 }
 
@@ -330,7 +329,7 @@ function addMoves(move1, move2, modulo, clamp) {
 // ------------------------------------------------------------------------ GAME
 var gameLoop;
 function startGame() {
-  vertices = [];
+  enemies = [];
   menu.style.display = "none";
   setPlayer();
   var delta = 0;
@@ -344,8 +343,8 @@ function startGame() {
       setEnemy(delta);
       moveEnemies(delta, getRandomDirection(delta));
       movePlayer(delta);
-      for (var i=1; i<vertices.length; i++) {
-        if (collision(vertices[0],vertices[i])) {
+      for (var i=0; i<enemies.length; i++) {
+        if (collision(player,enemies[i])) {
           stopGame();
         }
       }
@@ -356,16 +355,17 @@ function startGame() {
 
 function stopGame() {
   clearInterval(gameLoop);
-  vertices = [];
+  enemies = [];
+  player = [];
   showMenu();
 }
 
 // ------------------------------------------------------------------------ MENU
 function showMenu() {
   menu.style.display = "table-cell";
-  vertices = [];
+  enemies = [];
   for (var i=0; i<((BOX_NB_X > BOX_NB_Y) ? BOX_NB_X*2 : BOX_NB_Y*2); i++) {
-    vertices.push(getRandomVertice(0, 0, BOX_NB_X, BOX_NB_Y));
+    enemies.push(getRandomVertice(0, 0, BOX_NB_X, BOX_NB_Y));
   }
 }
 

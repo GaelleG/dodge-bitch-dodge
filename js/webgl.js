@@ -4,7 +4,8 @@
 // =============================================================================
 
 var gl;
-var squareVerticesBuffers = [];
+var enemyVerticeBuffers = [];
+var playerVerticeBuffer = [];
 var mvMatrix;
 var fragmentProgramEnemy;
 var fragmentProgramPlayer;
@@ -50,38 +51,60 @@ function initWebGL() {
 }
 
 function updateBuffers() {
-  while (squareVerticesBuffers.length > vertices.length) {
-    squareVerticesBuffers.pop();
+  // enemies
+  while (enemyVerticeBuffers.length > enemies.length) {
+    enemyVerticeBuffers.pop();
   }
-  for (var i=squareVerticesBuffers.length; i<vertices.length; i++) {
-    squareVerticesBuffers.push(gl.createBuffer());
+  for (var i=enemyVerticeBuffers.length; i<enemies.length; i++) {
+    enemyVerticeBuffers.push(gl.createBuffer());
   }
-  for (var i=0; i<vertices.length; i++) {
-    gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffers[i]);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices[i]), gl.STATIC_DRAW);
+  for (var i=0; i<enemies.length; i++) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, enemyVerticeBuffers[i]);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(enemies[i]), gl.STATIC_DRAW);
+  }
+
+  // player
+  if (player.length < 12) {
+    playerVerticeBuffer = [];
+  }
+  if (player.length == 12 && playerVerticeBuffer.length == 0) {
+    playerVerticeBuffer.push(gl.createBuffer());
+  }
+  for (var i=0; i<playerVerticeBuffer.length; i++) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, playerVerticeBuffer[i]);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(player), gl.STATIC_DRAW);
   }
 }
 
 function drawScene() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  for (var i=0; i<squareVerticesBuffers.length; i++) {
-    if (i < 2) {
-      if (i == 0) {
-        currentProgram = fragmentProgramPlayer;
-      }
-      else if (i == 1) {
-        currentProgram = fragmentProgramEnemy;
-      }
-      gl.useProgram(currentProgram);
-      perspectiveMatrix = makeOrtho(0, canvas.width, canvas.height, 0, 0.1, 100);
-      loadIdentity();
-      mvTranslate([-0.0, 0.0, -6.0]);
-      setMatrixUniforms();
-      vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
-      gl.enableVertexAttribArray(vertexPositionAttribute);
-    }
-    gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffers[i]);
+  // enemies
+  currentProgram = fragmentProgramEnemy;
+  gl.useProgram(currentProgram);
+  perspectiveMatrix = makeOrtho(0, canvas.width, canvas.height, 0, 0.1, 100);
+  loadIdentity();
+  mvTranslate([-0.0, 0.0, -6.0]);
+  setMatrixUniforms();
+  vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
+  gl.enableVertexAttribArray(vertexPositionAttribute);
+  for (var i=0; i<enemyVerticeBuffers.length; i++) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, enemyVerticeBuffers[i]);
+    gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+
+  // player
+  currentProgram = fragmentProgramPlayer;
+  gl.useProgram(currentProgram);
+  perspectiveMatrix = makeOrtho(0, canvas.width, canvas.height, 0, 0.1, 100);
+  loadIdentity();
+  mvTranslate([-0.0, 0.0, -6.0]);
+  setMatrixUniforms();
+  vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
+  gl.enableVertexAttribArray(vertexPositionAttribute);
+  for (var i=0; i<playerVerticeBuffer.length; i++) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, playerVerticeBuffer[i]);
     gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
