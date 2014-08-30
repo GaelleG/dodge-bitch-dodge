@@ -6,6 +6,7 @@
 var gl;
 var enemyVerticeBuffers = [];
 var playerVerticeBuffer = [];
+var friendVerticeBuffers = [];
 var mvMatrix;
 var fragmentProgramEnemy;
 var fragmentProgramPlayer;
@@ -63,6 +64,18 @@ function updateBuffers() {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(enemies[i]), gl.STATIC_DRAW);
   }
 
+  // friends
+  while (friendVerticeBuffers.length > friends.length) {
+    friendVerticeBuffers.pop();
+  }
+  for (var i=friendVerticeBuffers.length; i<friends.length; i++) {
+    friendVerticeBuffers.push(gl.createBuffer());
+  }
+  for (var i=0; i<friends.length; i++) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, friendVerticeBuffers[i]);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(friends[i]), gl.STATIC_DRAW);
+  }
+
   // player
   if (player.length < 12) {
     playerVerticeBuffer = [];
@@ -94,6 +107,21 @@ function drawScene() {
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 
+  // friends
+  currentProgram = fragmentProgramFriend;
+  gl.useProgram(currentProgram);
+  perspectiveMatrix = makeOrtho(0, canvas.width, canvas.height, 0, 0.1, 100);
+  loadIdentity();
+  mvTranslate([-0.0, 0.0, -6.0]);
+  setMatrixUniforms();
+  vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
+  gl.enableVertexAttribArray(vertexPositionAttribute);
+  for (var i=0; i<friendVerticeBuffers.length; i++) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, friendVerticeBuffers[i]);
+    gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+
   // player
   currentProgram = fragmentProgramPlayer;
   gl.useProgram(currentProgram);
@@ -112,6 +140,7 @@ function drawScene() {
 
 function initShaders() {
   var fragmentShaderEnemy = getShader(gl, "shader-fs-enemy");
+  var fragmentShaderFriend = getShader(gl, "shader-fs-friend");
   var fragmentShaderPlayer = getShader(gl, "shader-fs-player");
   var vertexShader = getShader(gl, "shader-vs");
   
@@ -120,6 +149,16 @@ function initShaders() {
   gl.attachShader(fragmentProgramEnemy, vertexShader);
   gl.attachShader(fragmentProgramEnemy, fragmentShaderEnemy);
   gl.linkProgram(fragmentProgramEnemy);
+
+  if (!gl.getProgramParameter(fragmentProgramEnemy, gl.LINK_STATUS)) {
+    alert("Unable to initialize the shader program.");
+  }
+
+  // friend
+  fragmentProgramFriend = gl.createProgram();
+  gl.attachShader(fragmentProgramFriend, vertexShader);
+  gl.attachShader(fragmentProgramFriend, fragmentShaderFriend);
+  gl.linkProgram(fragmentProgramFriend);
 
   if (!gl.getProgramParameter(fragmentProgramEnemy, gl.LINK_STATUS)) {
     alert("Unable to initialize the shader program.");

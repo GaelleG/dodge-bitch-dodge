@@ -25,6 +25,7 @@ var ENEMY_MAX_SIZE = AbstractViewport.ENEMY_MAX_SIZE;
 // ---------------------------------------------------------------------- GLOBAL
 var enemies = [];
 var player = [];
+var friends = [];
 var canvas;
 var menu;
 var play;
