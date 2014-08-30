@@ -49,7 +49,7 @@ play = document.getElementById("play");
 // ---------------------------------------------------------------------- PLAYER
 function setPlayer() {
   AbstractViewport.setPlayer();
-  player = multiplyMatrix(AbstractViewport.player, BOX_SIZE);
+  player = Vertex.multiplyMatrix(AbstractViewport.player, BOX_SIZE);
 }
 
 function emptyPlayer() {
@@ -59,7 +59,7 @@ function emptyPlayer() {
 
 function movePlayer(delta) {
   if (AbstractViewport.movePlayer(delta)) {
-    player = multiplyMatrix(AbstractViewport.player, BOX_SIZE);
+    player = Vertex.multiplyMatrix(AbstractViewport.player, BOX_SIZE);
   }
 }
 
@@ -81,53 +81,10 @@ function moveEnemies(delta) {
 
 function updateEnemies() {
   enemies = [];
-  var abstractEnemies = AbstractViewport.enemies;
+  var abstractEnemies = AbstractViewport.enemies.slice(0, AbstractViewport.enemies.length);
   for (var i=0; i<abstractEnemies.length; i++) {
-    enemies.push(multiplyMatrix(abstractEnemies[i], BOX_SIZE));
+    enemies.push(Vertex.multiplyMatrix(abstractEnemies[i], BOX_SIZE));
   }
-}
-
-// -------------------------------------------------------------------- VERTICES
-function multiplyMatrix(m1, size) {
-  var vertice = [];
-  for (var i=0; i<m1.length; i++) {
-    vertice.push(m1[i] * size);
-  }
-  return vertice;
-}
-
-function getRandomVertice(left, top, box_nb_x, box_nb_y) {
-  var min = {
-    x: 0,
-    y: 0,
-  };
-  var max = {
-    x: box_nb_x,
-    y: box_nb_y,
-  };
-  var randSize = {
-    x: Math.round(Math.random() * (ENEMY_MAX_SIZE - 1) + 1),
-    y: Math.round(Math.random() * (ENEMY_MAX_SIZE - 1) + 1),
-  };
-  max.x -= randSize.x;
-  max.y -= randSize.y;
-  var randPosition = {
-    x: Math.round(Math.random() * max.x),
-    y: Math.round(Math.random() * max.y),
-  };
-  randSize.x *= BOX_SIZE;
-  randSize.y *= BOX_SIZE;
-  randPosition.x += left;
-  randPosition.x *= BOX_SIZE;
-  randPosition.y += top;
-  randPosition.y *= BOX_SIZE;
-  var vertice = [
-    randPosition.x, randPosition.y, 0.0,
-    randPosition.x + randSize.x, randPosition.y, 0.0,
-    randPosition.x, randPosition.y + randSize.y, 0.0,
-    randPosition.x + randSize.x, randPosition.y + randSize.y, 0.0,
-  ];
-  return vertice;
 }
 
 // ------------------------------------------------------------------------ GAME
@@ -167,7 +124,7 @@ function showMenu() {
   menu.style.display = "table-cell";
   enemies = [];
   for (var i=0; i<((BOX_NB_X > BOX_NB_Y) ? BOX_NB_X*2 : BOX_NB_Y*2); i++) {
-    enemies.push(getRandomVertice(0, 0, BOX_NB_X, BOX_NB_Y));
+    enemies.push(Vertex.getRandomVertice(0, 0, BOX_NB_X, BOX_NB_Y, BOX_SIZE, AbstractViewport.ENEMY_MAX_SIZE, {x:0,y:0}));
   }
 }
 
