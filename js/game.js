@@ -21,6 +21,11 @@ var BOX_SIZE = CANVAS_HEIGHT/AbstractViewport.BOX_NB_X;
 var BOX_NB_X = AbstractViewport.BOX_NB_X;
 var BOX_NB_Y = AbstractViewport.BOX_NB_Y;
 var ENEMY_MAX_SIZE = AbstractViewport.ENEMY_MAX_SIZE;
+var GAME_STATE = {
+  menu: 0,
+  ingame: 1,
+  over: 2,
+};
 
 // ---------------------------------------------------------------------- GLOBAL
 var enemies = [];
@@ -29,12 +34,46 @@ var friends = [];
 var canvas;
 var menu;
 var play;
+var gs = GAME_STATE.menu;
 
 // =============================================================================
 //                                 GAME LOADING
 // =============================================================================
 
 function loadGame() {
+
+// ---------------------------------------------------------------------- SOCKET
+var local = true;
+try {
+  var socket = new WebSocket("ws://127.0.0.1:1337");
+  var socketObject = {};
+  socket.onmessage = function(event) {
+    local = false;
+    var object = JSON.parse(event.data);
+    if (object.player !== undefined) {
+      socketObject["player"] = object.player;
+      setPlayer();
+    }
+    if (object.enemies !== undefined) {
+      if (gs == GAME_STATE.ingame) {
+        updateEnemies(object.enemies);
+      }
+    }
+    if (object.enemyDirection !== undefined) {
+      socketObject["enemyDirection"] = object.enemyDirection;
+    }
+    if (object.gameStatus !== undefined) {
+      if (object.gameStatus == "ingame") {
+        startGame();
+      }
+      if (object.gameStatus == "over") {
+        stopGame();
+      }
+    }
+  };
+}
+catch (e) {
+}
 
 // ------------------------------------------------------------------------- DOM
 canvas = document.getElementById("glcanvas");
@@ -49,7 +88,13 @@ play = document.getElementById("play");
 
 // ---------------------------------------------------------------------- PLAYER
 function setPlayer() {
-  AbstractViewport.setPlayer();
+  if (local) {
+    AbstractViewport.setPlayer();
+  }
+  else {
+    AbstractViewport.player = socketObject.player;
+    socket.send(JSON.stringify({player:AbstractViewport.player}));
+  }
   player = Vertex.multiplyMatrix(AbstractViewport.player, BOX_SIZE);
 }
 
@@ -61,6 +106,9 @@ function emptyPlayer() {
 function movePlayer(delta) {
   if (AbstractViewport.movePlayer(delta)) {
     player = Vertex.multiplyMatrix(AbstractViewport.player, BOX_SIZE);
+    if (!local) {
+      socket.send(JSON.stringify({player:AbstractViewport.player}));
+    }
   }
 }
 
@@ -76,21 +124,31 @@ function emptyEnemies() {
 }
 
 function moveEnemies(delta) {
-  AbstractViewport.moveEnemies(delta, AbstractViewport.getRandomDirection(delta));
+  if (local) {
+    AbstractViewport.setEnemyDirection(delta);
+  }
+  var direction = (local)
+    ? AbstractViewport.getEnemyDirection()
+    : socketObject.enemyDirection;
+  AbstractViewport.moveEnemies(delta, direction);
   updateEnemies();
 }
 
-function updateEnemies() {
+function updateEnemies(_enemies) {
   enemies = [];
-  var abstractEnemies = AbstractViewport.enemies.slice(0, AbstractViewport.enemies.length);
-  for (var i=0; i<abstractEnemies.length; i++) {
-    enemies.push(Vertex.multiplyMatrix(abstractEnemies[i], BOX_SIZE));
+  if (_enemies !== undefined) {
+    AbstractViewport.emptyEnemies();
+    AbstractViewport.enemies = _enemies;
+  }
+  for (var i=0; i<AbstractViewport.enemies.length; i++) {
+    enemies.push(Vertex.multiplyMatrix(AbstractViewport.enemies[i], BOX_SIZE));
   }
 }
 
 // ------------------------------------------------------------------------ GAME
 var gameLoop;
 function startGame() {
+  gs = GAME_STATE.ingame;
   emptyEnemies();
   menu.style.display = "none";
   setPlayer();
@@ -102,11 +160,14 @@ function startGame() {
       newTime = Date.now();
       delta = newTime - oldTime;
       oldTime = newTime;
-      setEnemy(delta);
+      if (local) {
+        setEnemy(delta);
+      }
       moveEnemies(delta);
       movePlayer(delta);
       if (AbstractViewport.playerCollisionWithEnemies()) {
         stopGame();
+        socket.send(JSON.stringify({status: "over"}));
       }
     },
     16
@@ -114,6 +175,7 @@ function startGame() {
 }
 
 function stopGame() {
+  gs = GAME_STATE.over;
   clearInterval(gameLoop);
   emptyEnemies();
   emptyPlayer();
@@ -153,7 +215,12 @@ window.addEventListener("keyup", function (event) {
 }, true);
 
 play.addEventListener("click", function (event) {
-  startGame();
+  if (local) {
+    startGame();
+  }
+  else {
+    socket.send(JSON.stringify({status:"ready"}));
+  }
 });
 
 }

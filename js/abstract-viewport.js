@@ -43,7 +43,10 @@ AbstractViewport.ENEMY_SET_INTERVAL = 10000/((AbstractViewport.BOX_NB_X > Abstra
 
 // ---------------------------------------------------------------------- STATIC
 AbstractViewport.enemies = [];
-AbstractViewport.enemyDirection = null;
+AbstractViewport.enemyDirection = {
+  x: 0.0,
+  y: 0.0
+};
 AbstractViewport.enemyMove = {
   x: 0.0,
   y: 0.0
@@ -196,20 +199,25 @@ AbstractViewport.playerCollisionWithEnemies = function() {
 }
 
 // ------------------------------------------------------------------------ MOVE
-AbstractViewport.getRandomDirection = function(delta) {
+AbstractViewport.setEnemyDirection = function(delta) {
   AbstractViewport.enemyLastDirectionChange += delta;
-  if (AbstractViewport.enemyDirection != null && AbstractViewport.enemyLastDirectionChange < 1000) {
-    return AbstractViewport.enemyDirection;
+  if ((AbstractViewport.enemyDirection.x != 0 || AbstractViewport.enemyDirection.y != 0) && AbstractViewport.enemyLastDirectionChange < 4000) {
+    return false;
   }
-  AbstractViewport.enemyLastDirectionChange -= 1000;
-  if (AbstractViewport.enemyDirection == null || Math.floor(Math.random() * 10) == 0) {
+  if ((AbstractViewport.enemyDirection.x != 0 || AbstractViewport.enemyDirection.y != 0) || Math.floor(Math.random() * 10) == 0) {
+    AbstractViewport.enemyLastDirectionChange -= 4000;
     var keys = Object.keys(AbstractViewport.DIRECTION);
     var newDirection;
     do {
       newDirection = AbstractViewport.DIRECTION[keys[Math.floor(Math.random() * keys.length)]];
     } while (newDirection == AbstractViewport.enemyDirection);
     AbstractViewport.enemyDirection = newDirection;
+    return true;
   }
+  return false;
+}
+
+AbstractViewport.getEnemyDirection = function() {
   return AbstractViewport.enemyDirection;
 }
 
