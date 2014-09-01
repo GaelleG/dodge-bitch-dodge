@@ -79,6 +79,9 @@ try {
       updateFriends(object.friends);
     }
   };
+  socket.onclose = function() {
+    local = true;
+  }
 }
 catch (e) {
 }
@@ -233,7 +236,7 @@ showMenu();
 
 // ---------------------------------------------------------------------- EVENTS
 window.addEventListener("keydown", function (event) {
-  if (event.defaultPrevented) {
+  if (event.defaultPrevented || gs != GAME_STATE.ingame) {
     return;
   }
   AbstractViewport.playerEvent(event);
@@ -241,7 +244,7 @@ window.addEventListener("keydown", function (event) {
 }, true);
 
 window.addEventListener("keyup", function (event) {
-  if (event.defaultPrevented) {
+  if (event.defaultPrevented || gs != GAME_STATE.ingame) {
     return;
   }
   AbstractViewport.playerEvent(event);

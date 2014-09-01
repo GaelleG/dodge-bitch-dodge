@@ -90,6 +90,7 @@ AbstractViewport.movePlayer = function(delta) {
 
 AbstractViewport.emptyPlayer = function() {
   AbstractViewport.player = [];
+  AbstractViewport.playerDirection = { x:0, y:0 };
 }
 
 AbstractViewport.playerEvent = function(event) {
@@ -186,6 +187,16 @@ AbstractViewport.moveEnemies = function(delta, direction) {
 
 AbstractViewport.emptyEnemies = function() {
   AbstractViewport.enemies = [];
+  AbstractViewport.enemyDirection = {
+    x: 0.0,
+    y: 0.0
+  };
+  AbstractViewport.enemyMove = {
+    x: 0.0,
+    y: 0.0
+  };
+  AbstractViewport.enemyLastSet = 0;
+  AbstractViewport.enemyLastDirectionChange = 0;
 }
 
 // ------------------------------------------------------------------- COLLISION
