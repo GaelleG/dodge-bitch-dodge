@@ -167,7 +167,9 @@ function startGame() {
       movePlayer(delta);
       if (AbstractViewport.playerCollisionWithEnemies()) {
         stopGame();
-        socket.send(JSON.stringify({status: "over"}));
+        if (!local) {
+          socket.send(JSON.stringify({status: "over"}));
+        }
       }
     },
     16
