@@ -75,6 +75,9 @@ try {
         stopGame();
       }
     }
+    if (object.friends !== undefined) {
+      updateFriends(object.friends);
+    }
   };
 }
 catch (e) {
@@ -155,6 +158,20 @@ function addEnemy(enemy) {
   AbstractViewport.enemies.push(Vertex.multiplyMatrix(enemy, BOX_SIZE));
 }
 
+// --------------------------------------------------------------------- FRIENDS
+function updateFriends(_friends) {
+  if (gs != GAME_STATE.ingame) {
+    return;
+  }
+  var indexes = Object.keys(_friends);
+  for (var i=0; i<indexes.length; i++) {
+    while (friends.length < indexes.length) {
+      friends.push([]);
+    }
+    friends[indexes[i]] = Vertex.multiplyMatrix(_friends[indexes[i]], BOX_SIZE);
+  }
+}
+
 // ------------------------------------------------------------------------ GAME
 var gameLoop;
 function startGame() {
@@ -174,7 +191,11 @@ function startGame() {
         setEnemy(delta);
       }
       moveEnemies(delta);
-      movePlayer(delta);
+      if (movePlayer(delta)) {
+        if (!local) {
+          socket.send(JSON.stringify({player: AbstractViewport.player}));
+        }
+      }
       if (AbstractViewport.playerCollisionWithEnemies()) {
         stopGame();
         if (!local) {
@@ -191,6 +212,7 @@ function stopGame() {
   clearInterval(gameLoop);
   emptyEnemies();
   emptyPlayer();
+  friends = [];
   showMenu();
 }
 

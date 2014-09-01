@@ -413,7 +413,7 @@ AbstractViewport.addMoves = function(move1, move2, modulo, clamp) {
 var WebSocketServer = require('ws').Server;
 var wss = new WebSocketServer({port: 1337, origin: 'http://127.0.0.1'});
 var clients = [];
-var players = [];
+var players = {};
 var ready = [];
 var over = [];
 
@@ -428,7 +428,8 @@ wss.on('connection', function(ws) {
   ws.on('message', function(message) {
     var json = JSON.parse(message);
     if (json.player !== undefined) {
-      AbstractViewport.player = json.player;
+      players[index] = json.player;
+      broadcastFriends(index);
     }
     else if (json.status !== undefined) {
       if (json.status == "ready") {
@@ -491,6 +492,16 @@ function broadcastNewEnemy() {
   wss.broadcast(JSON.stringify({
     newEnemy: AbstractViewport.enemies[AbstractViewport.enemies.length-1],
   }));
+}
+
+function broadcastFriends(index) {
+  for(var i in clients) {
+    if (i != index) {
+      var friends = {};
+      friends[index] = players[index];
+      clients[i].send(JSON.stringify({friends: friends}));
+    }
+  }
 }
 
 // =============================================================================
