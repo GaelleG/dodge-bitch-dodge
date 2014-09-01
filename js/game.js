@@ -59,6 +59,11 @@ try {
         updateEnemies(object.enemies);
       }
     }
+    if (object.newEnemy !== undefined) {
+      if (gs == GAME_STATE.ingame) {
+        addEnemy(object.newEnemy);
+      }
+    }
     if (object.enemyDirection !== undefined) {
       socketObject["enemyDirection"] = object.enemyDirection;
     }
@@ -145,6 +150,11 @@ function updateEnemies(_enemies) {
   }
 }
 
+function addEnemy(enemy) {
+  AbstractViewport.enemies.push(enemy);
+  AbstractViewport.enemies.push(Vertex.multiplyMatrix(enemy, BOX_SIZE));
+}
+
 // ------------------------------------------------------------------------ GAME
 var gameLoop;
 function startGame() {
@@ -172,7 +182,7 @@ function startGame() {
         }
       }
     },
-    16
+    10
   );
 }
 

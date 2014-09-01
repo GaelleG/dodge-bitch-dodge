@@ -80,6 +80,13 @@ function broadcastEnemies() {
 function broadcastEnemyDirection() {
   wss.broadcast(JSON.stringify({
     enemyDirection: AbstractViewport.enemyDirection,
+    enemies: AbstractViewport.enemies,
+  }));
+}
+
+function broadcastNewEnemy() {
+  wss.broadcast(JSON.stringify({
+    newEnemy: AbstractViewport.enemies[AbstractViewport.enemies.length-1],
   }));
 }
 
@@ -100,7 +107,7 @@ function startGame() {
       delta = newTime - oldTime;
       oldTime = newTime;
       if (AbstractViewport.setEnemy(delta)) {
-        broadcastEnemies();
+        broadcastNewEnemy();
       }
       if (AbstractViewport.setEnemyDirection(delta)) {
         broadcastEnemyDirection();
@@ -111,7 +118,7 @@ function startGame() {
       //   broadcastStopGame();
       // }
     },
-    16
+    10
   );
   broadcastStartGame();
 }
