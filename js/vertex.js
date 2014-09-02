@@ -6,7 +6,7 @@
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function Vertex() {};
+function Vertex() {}
 
 Vertex.getRandomVertice = function(left, top, box_nb_x, box_nb_y, box_size, max_size, move) {
   var min = {
@@ -42,7 +42,7 @@ Vertex.getRandomVertice = function(left, top, box_nb_x, box_nb_y, box_size, max_
     randPosition.x + randSize.x, randPosition.y + randSize.y, 0.0,
   ];
   return vertice;
-}
+};
 
 Vertex.addMatrix = function(m1, m2, bounds) {
   if (m1.length != m2.length) {
@@ -52,9 +52,10 @@ Vertex.addMatrix = function(m1, m2, bounds) {
     x: 0.0,
     y: 0.0,
   };
+  var i=0;
   if (bounds !== undefined) {
-    for (var i=0; i<m1.length && i<m2.length; i++) {
-      if (i%3 == 0) {
+    for (i=0; i<m1.length && i<m2.length; i++) {
+      if (i%3 === 0) {
         if (m1[i] + m2[i] < bounds.left && clamp.x <= 0) {
           clamp.x -= m1[i] + m2[i] + bounds.left;
         }
@@ -73,9 +74,9 @@ Vertex.addMatrix = function(m1, m2, bounds) {
     }
   }
   var vertice = [];
-  for (var i=0; i<m1.length && i<m2.length; i++) {
+  for (i=0; i<m1.length && i<m2.length; i++) {
     var newPos = m1[i] + m2[i];
-    if (i%3 == 0) {
+    if (i%3 === 0) {
       newPos += clamp.x;
     }
     if (i%3 == 1) {
@@ -84,7 +85,7 @@ Vertex.addMatrix = function(m1, m2, bounds) {
     vertice.push(newPos);
   }
   return vertice;
-}
+};
 
 Vertex.multiplyMatrix = function(m1, size) {
   var vertice = [];
@@ -92,7 +93,7 @@ Vertex.multiplyMatrix = function(m1, size) {
     vertice.push(m1[i] * size);
   }
   return vertice;
-}
+};
 
 Vertex.outOfBounds = function(vertice4, bounds) {
   for (var i=0; i<vertice4.length; i+=3) {
@@ -103,7 +104,7 @@ Vertex.outOfBounds = function(vertice4, bounds) {
     }
   }
   return true;
-}
+};
 
 Vertex.collision = function(v1, v2) {
   var edges1 = Vertex.getVerticeEdges(v1);
@@ -125,13 +126,13 @@ Vertex.collision = function(v1, v2) {
     return true;
   }
   return false;
-}
+};
 
 Vertex.getVerticeEdges = function(vertice) {
   var edges = { left:0, top:0, bottom:0, right:0 };
   for (var i=0; i<vertice.length; i+=3) {
     var vertex = vertice.slice(i, i+2);
-    if (i == 0) {
+    if (i === 0) {
       edges.left = vertex[0];
       edges.right = vertex[0];
       edges.top = vertex[1];
@@ -149,4 +150,4 @@ Vertex.getVerticeEdges = function(vertice) {
     }
   }
   return edges;
-}
+};

@@ -52,14 +52,16 @@ function initWebGL() {
 }
 
 function updateBuffers() {
+  var i=0;
+
   // enemies
   while (enemyVerticeBuffers.length > enemies.length) {
     enemyVerticeBuffers.pop();
   }
-  for (var i=enemyVerticeBuffers.length; i<enemies.length; i++) {
+  for (i=enemyVerticeBuffers.length; i<enemies.length; i++) {
     enemyVerticeBuffers.push(gl.createBuffer());
   }
-  for (var i=0; i<enemies.length; i++) {
+  for (i=0; i<enemies.length; i++) {
     gl.bindBuffer(gl.ARRAY_BUFFER, enemyVerticeBuffers[i]);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(enemies[i]), gl.STATIC_DRAW);
   }
@@ -68,10 +70,10 @@ function updateBuffers() {
   while (friendVerticeBuffers.length > friends.length) {
     friendVerticeBuffers.pop();
   }
-  for (var i=friendVerticeBuffers.length; i<friends.length; i++) {
+  for (i=friendVerticeBuffers.length; i<friends.length; i++) {
     friendVerticeBuffers.push(gl.createBuffer());
   }
-  for (var i=0; i<friends.length; i++) {
+  for (i=0; i<friends.length; i++) {
     gl.bindBuffer(gl.ARRAY_BUFFER, friendVerticeBuffers[i]);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(friends[i]), gl.STATIC_DRAW);
   }
@@ -80,10 +82,10 @@ function updateBuffers() {
   if (player.length < 12) {
     playerVerticeBuffer = [];
   }
-  if (player.length == 12 && playerVerticeBuffer.length == 0) {
+  if (player.length == 12 && playerVerticeBuffer.length === 0) {
     playerVerticeBuffer.push(gl.createBuffer());
   }
-  for (var i=0; i<playerVerticeBuffer.length; i++) {
+  for (i=0; i<playerVerticeBuffer.length; i++) {
     gl.bindBuffer(gl.ARRAY_BUFFER, playerVerticeBuffer[i]);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(player), gl.STATIC_DRAW);
   }
@@ -91,6 +93,7 @@ function updateBuffers() {
 
 function drawScene() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  var i=0;
 
   // enemies
   currentProgram = fragmentProgramEnemy;
@@ -101,7 +104,7 @@ function drawScene() {
   setMatrixUniforms();
   vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
   gl.enableVertexAttribArray(vertexPositionAttribute);
-  for (var i=0; i<enemyVerticeBuffers.length; i++) {
+  for (i=0; i<enemyVerticeBuffers.length; i++) {
     gl.bindBuffer(gl.ARRAY_BUFFER, enemyVerticeBuffers[i]);
     gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -116,7 +119,7 @@ function drawScene() {
   setMatrixUniforms();
   vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
   gl.enableVertexAttribArray(vertexPositionAttribute);
-  for (var i=0; i<friendVerticeBuffers.length; i++) {
+  for (i=0; i<friendVerticeBuffers.length; i++) {
     gl.bindBuffer(gl.ARRAY_BUFFER, friendVerticeBuffers[i]);
     gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -131,7 +134,7 @@ function drawScene() {
   setMatrixUniforms();
   vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
   gl.enableVertexAttribArray(vertexPositionAttribute);
-  for (var i=0; i<playerVerticeBuffer.length; i++) {
+  for (i=0; i<playerVerticeBuffer.length; i++) {
     gl.bindBuffer(gl.ARRAY_BUFFER, playerVerticeBuffer[i]);
     gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

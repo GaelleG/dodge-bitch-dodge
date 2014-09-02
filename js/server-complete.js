@@ -6,7 +6,7 @@
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function Vertex() {};
+function Vertex() {}
 
 Vertex.getRandomVertice = function(left, top, box_nb_x, box_nb_y, box_size, max_size, move) {
   var min = {
@@ -42,7 +42,7 @@ Vertex.getRandomVertice = function(left, top, box_nb_x, box_nb_y, box_size, max_
     randPosition.x + randSize.x, randPosition.y + randSize.y, 0.0,
   ];
   return vertice;
-}
+};
 
 Vertex.addMatrix = function(m1, m2, bounds) {
   if (m1.length != m2.length) {
@@ -52,9 +52,10 @@ Vertex.addMatrix = function(m1, m2, bounds) {
     x: 0.0,
     y: 0.0,
   };
+  var i=0;
   if (bounds !== undefined) {
-    for (var i=0; i<m1.length && i<m2.length; i++) {
-      if (i%3 == 0) {
+    for (i=0; i<m1.length && i<m2.length; i++) {
+      if (i%3 === 0) {
         if (m1[i] + m2[i] < bounds.left && clamp.x <= 0) {
           clamp.x -= m1[i] + m2[i] + bounds.left;
         }
@@ -73,9 +74,9 @@ Vertex.addMatrix = function(m1, m2, bounds) {
     }
   }
   var vertice = [];
-  for (var i=0; i<m1.length && i<m2.length; i++) {
+  for (i=0; i<m1.length && i<m2.length; i++) {
     var newPos = m1[i] + m2[i];
-    if (i%3 == 0) {
+    if (i%3 === 0) {
       newPos += clamp.x;
     }
     if (i%3 == 1) {
@@ -84,7 +85,7 @@ Vertex.addMatrix = function(m1, m2, bounds) {
     vertice.push(newPos);
   }
   return vertice;
-}
+};
 
 Vertex.multiplyMatrix = function(m1, size) {
   var vertice = [];
@@ -92,7 +93,7 @@ Vertex.multiplyMatrix = function(m1, size) {
     vertice.push(m1[i] * size);
   }
   return vertice;
-}
+};
 
 Vertex.outOfBounds = function(vertice4, bounds) {
   for (var i=0; i<vertice4.length; i+=3) {
@@ -103,7 +104,7 @@ Vertex.outOfBounds = function(vertice4, bounds) {
     }
   }
   return true;
-}
+};
 
 Vertex.collision = function(v1, v2) {
   var edges1 = Vertex.getVerticeEdges(v1);
@@ -125,13 +126,13 @@ Vertex.collision = function(v1, v2) {
     return true;
   }
   return false;
-}
+};
 
 Vertex.getVerticeEdges = function(vertice) {
   var edges = { left:0, top:0, bottom:0, right:0 };
   for (var i=0; i<vertice.length; i+=3) {
     var vertex = vertice.slice(i, i+2);
-    if (i == 0) {
+    if (i === 0) {
       edges.left = vertex[0];
       edges.right = vertex[0];
       edges.top = vertex[1];
@@ -149,7 +150,7 @@ Vertex.getVerticeEdges = function(vertice) {
     }
   }
   return edges;
-}
+};
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -159,7 +160,7 @@ Vertex.getVerticeEdges = function(vertice) {
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function AbstractViewport() {};
+function AbstractViewport() {}
 
 // =============================================================================
 //                                     VARS                                     
@@ -221,10 +222,10 @@ AbstractViewport.setPlayer = function() {
     AbstractViewport.BOX_NB_X/2 - AbstractViewport.BOX_SIZE*0.5/2, AbstractViewport.BOX_NB_Y/2 + AbstractViewport.BOX_SIZE*0.5/2, 0.0,
     AbstractViewport.BOX_NB_X/2 + AbstractViewport.BOX_SIZE*0.5/2, AbstractViewport.BOX_NB_Y/2 + AbstractViewport.BOX_SIZE*0.5/2, 0.0,
   ];
-}
+};
 
 AbstractViewport.movePlayer = function(delta) {
-  if (AbstractViewport.playerDirection.x == 0 && AbstractViewport.playerDirection.y == 0) {
+  if (AbstractViewport.playerDirection.x === 0 && AbstractViewport.playerDirection.y === 0) {
     return false;
   }
   var move = {
@@ -239,12 +240,12 @@ AbstractViewport.movePlayer = function(delta) {
   ];
   AbstractViewport.player = Vertex.addMatrix(AbstractViewport.player, moveVertice, AbstractViewport.VIEWPORT_BOUNDS);
   return true;
-}
+};
 
 AbstractViewport.emptyPlayer = function() {
   AbstractViewport.player = [];
   AbstractViewport.playerDirection = { x:0, y:0 };
-}
+};
 
 AbstractViewport.playerEvent = function(event) {
   if (event.type == "keydown") {
@@ -283,7 +284,7 @@ AbstractViewport.playerEvent = function(event) {
         return;
     }
   }
-}
+};
 
 // --------------------------------------------------------------------- ENEMIES
 AbstractViewport.setEnemy = function(delta) {
@@ -308,11 +309,11 @@ AbstractViewport.setEnemy = function(delta) {
   else if (AbstractViewport.enemyDirection.y > 0) {
     top = - (AbstractViewport.ENEMY_MAX_SIZE + 1);
   }
-  var box_nb_x = (left == 0) ? AbstractViewport.BOX_NB_X : AbstractViewport.ENEMY_MAX_SIZE;
-  var box_nb_y = (top == 0) ? AbstractViewport.BOX_NB_Y : AbstractViewport.ENEMY_MAX_SIZE;
+  var box_nb_x = (left === 0) ? AbstractViewport.BOX_NB_X : AbstractViewport.ENEMY_MAX_SIZE;
+  var box_nb_y = (top === 0) ? AbstractViewport.BOX_NB_Y : AbstractViewport.ENEMY_MAX_SIZE;
   AbstractViewport.enemies.push(Vertex.getRandomVertice(left, top, box_nb_x, box_nb_y, AbstractViewport.BOX_SIZE, AbstractViewport.ENEMY_MAX_SIZE, AbstractViewport.enemyMove));
   return true;
-}
+};
 
 AbstractViewport.moveEnemies = function(delta, direction) {
   var toDelete = [];
@@ -327,16 +328,17 @@ AbstractViewport.moveEnemies = function(delta, direction) {
     move.x, move.y, 0,
     move.x, move.y, 0,
   ];
-  for (var i=0; i<AbstractViewport.enemies.length; i++) {
+  var i=0;
+  for (i=0; i<AbstractViewport.enemies.length; i++) {
     AbstractViewport.enemies[i] = Vertex.addMatrix(AbstractViewport.enemies[i], moveVertice);
     if (Vertex.outOfBounds(AbstractViewport.enemies[i], AbstractViewport.ENEMY_VIEWPORT_BOUNDS)) {
       toDelete.unshift(i);
     }
   }
-  for (var i=0; i<toDelete.length; i++) {
+  for (i=0; i<toDelete.length; i++) {
     AbstractViewport.enemies.splice(toDelete[i], 1);
   }
-}
+};
 
 AbstractViewport.emptyEnemies = function() {
   AbstractViewport.enemies = [];
@@ -350,7 +352,7 @@ AbstractViewport.emptyEnemies = function() {
   };
   AbstractViewport.enemyLastSet = 0;
   AbstractViewport.enemyLastDirectionChange = 0;
-}
+};
 
 // ------------------------------------------------------------------- COLLISION
 AbstractViewport.playerCollisionWithEnemies = function() {
@@ -360,15 +362,15 @@ AbstractViewport.playerCollisionWithEnemies = function() {
     }
   }
   return false;
-}
+};
 
 // ------------------------------------------------------------------------ MOVE
 AbstractViewport.setEnemyDirection = function(delta) {
   AbstractViewport.enemyLastDirectionChange += delta;
-  if ((AbstractViewport.enemyDirection.x != 0 || AbstractViewport.enemyDirection.y != 0) && AbstractViewport.enemyLastDirectionChange < 4000) {
+  if ((AbstractViewport.enemyDirection.x !== 0 || AbstractViewport.enemyDirection.y !== 0) && AbstractViewport.enemyLastDirectionChange < 4000) {
     return false;
   }
-  if ((AbstractViewport.enemyDirection.x != 0 || AbstractViewport.enemyDirection.y != 0) || Math.floor(Math.random() * 10) == 0) {
+  if ((AbstractViewport.enemyDirection.x !== 0 || AbstractViewport.enemyDirection.y !== 0) || Math.floor(Math.random() * 10) === 0) {
     AbstractViewport.enemyLastDirectionChange -= 4000;
     var keys = Object.keys(AbstractViewport.DIRECTION);
     var newDirection;
@@ -379,15 +381,15 @@ AbstractViewport.setEnemyDirection = function(delta) {
     return true;
   }
   return false;
-}
+};
 
 AbstractViewport.getEnemyDirection = function() {
   return AbstractViewport.enemyDirection;
-}
+};
 
 AbstractViewport.setGlobalMove = function(move) {
   AbstractViewport.addMoves(AbstractViewport.enemyMove, move, AbstractViewport.BOX_SIZE);
-}
+};
 
 AbstractViewport.addMoves = function(move1, move2, modulo, clamp) {
   move1.x += move2.x;
@@ -396,7 +398,7 @@ AbstractViewport.addMoves = function(move1, move2, modulo, clamp) {
     move1.x %= modulo;
     move1.y %= modulo;
   }
-  if (clamp != undefined) {
+  if (clamp !== undefined) {
     if (move1.x > clamp.max) {
       move1.x = clamp.max;
     }
@@ -410,7 +412,7 @@ AbstractViewport.addMoves = function(move1, move2, modulo, clamp) {
       move1.y = clamp.min;
     }
   }
-}
+};
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -447,14 +449,14 @@ wss.on('connection', function(ws) {
         ready.push(index);
         if (ready.length == clients.length) {
           startGame();
-        };
+        }
       }
       else if (json.status == "over") {
         ready.splice(ready.indexOf(index), 1);
         over.push(index);
         if (over.length == clients.length) {
           stopGame();
-        };
+        }
       }
     }
   });

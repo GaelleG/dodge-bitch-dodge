@@ -51,7 +51,7 @@ try {
     local = false;
     var object = JSON.parse(event.data);
     if (object.player !== undefined) {
-      socketObject["player"] = object.player;
+      socketObject.player = object.player;
       setPlayer();
     }
     if (object.enemies !== undefined) {
@@ -65,7 +65,7 @@ try {
       }
     }
     if (object.enemyDirection !== undefined) {
-      socketObject["enemyDirection"] = object.enemyDirection;
+      socketObject.enemyDirection = object.enemyDirection;
     }
     if (object.gameStatus !== undefined) {
       if (object.gameStatus == "ingame") {
@@ -81,7 +81,7 @@ try {
   };
   socket.onclose = function() {
     local = true;
-  }
+  };
 }
 catch (e) {
 }
@@ -138,9 +138,7 @@ function moveEnemies(delta) {
   if (local) {
     AbstractViewport.setEnemyDirection(delta);
   }
-  var direction = (local)
-    ? AbstractViewport.getEnemyDirection()
-    : socketObject.enemyDirection;
+  var direction = (local) ? AbstractViewport.getEnemyDirection() : socketObject.enemyDirection;
   AbstractViewport.moveEnemies(delta, direction);
   updateEnemies();
 }

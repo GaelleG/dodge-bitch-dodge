@@ -6,7 +6,7 @@
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function AbstractViewport() {};
+function AbstractViewport() {}
 
 // =============================================================================
 //                                     VARS                                     
@@ -68,10 +68,10 @@ AbstractViewport.setPlayer = function() {
     AbstractViewport.BOX_NB_X/2 - AbstractViewport.BOX_SIZE*0.5/2, AbstractViewport.BOX_NB_Y/2 + AbstractViewport.BOX_SIZE*0.5/2, 0.0,
     AbstractViewport.BOX_NB_X/2 + AbstractViewport.BOX_SIZE*0.5/2, AbstractViewport.BOX_NB_Y/2 + AbstractViewport.BOX_SIZE*0.5/2, 0.0,
   ];
-}
+};
 
 AbstractViewport.movePlayer = function(delta) {
-  if (AbstractViewport.playerDirection.x == 0 && AbstractViewport.playerDirection.y == 0) {
+  if (AbstractViewport.playerDirection.x === 0 && AbstractViewport.playerDirection.y === 0) {
     return false;
   }
   var move = {
@@ -86,12 +86,12 @@ AbstractViewport.movePlayer = function(delta) {
   ];
   AbstractViewport.player = Vertex.addMatrix(AbstractViewport.player, moveVertice, AbstractViewport.VIEWPORT_BOUNDS);
   return true;
-}
+};
 
 AbstractViewport.emptyPlayer = function() {
   AbstractViewport.player = [];
   AbstractViewport.playerDirection = { x:0, y:0 };
-}
+};
 
 AbstractViewport.playerEvent = function(event) {
   if (event.type == "keydown") {
@@ -130,7 +130,7 @@ AbstractViewport.playerEvent = function(event) {
         return;
     }
   }
-}
+};
 
 // --------------------------------------------------------------------- ENEMIES
 AbstractViewport.setEnemy = function(delta) {
@@ -155,11 +155,11 @@ AbstractViewport.setEnemy = function(delta) {
   else if (AbstractViewport.enemyDirection.y > 0) {
     top = - (AbstractViewport.ENEMY_MAX_SIZE + 1);
   }
-  var box_nb_x = (left == 0) ? AbstractViewport.BOX_NB_X : AbstractViewport.ENEMY_MAX_SIZE;
-  var box_nb_y = (top == 0) ? AbstractViewport.BOX_NB_Y : AbstractViewport.ENEMY_MAX_SIZE;
+  var box_nb_x = (left === 0) ? AbstractViewport.BOX_NB_X : AbstractViewport.ENEMY_MAX_SIZE;
+  var box_nb_y = (top === 0) ? AbstractViewport.BOX_NB_Y : AbstractViewport.ENEMY_MAX_SIZE;
   AbstractViewport.enemies.push(Vertex.getRandomVertice(left, top, box_nb_x, box_nb_y, AbstractViewport.BOX_SIZE, AbstractViewport.ENEMY_MAX_SIZE, AbstractViewport.enemyMove));
   return true;
-}
+};
 
 AbstractViewport.moveEnemies = function(delta, direction) {
   var toDelete = [];
@@ -174,16 +174,17 @@ AbstractViewport.moveEnemies = function(delta, direction) {
     move.x, move.y, 0,
     move.x, move.y, 0,
   ];
-  for (var i=0; i<AbstractViewport.enemies.length; i++) {
+  var i=0;
+  for (i=0; i<AbstractViewport.enemies.length; i++) {
     AbstractViewport.enemies[i] = Vertex.addMatrix(AbstractViewport.enemies[i], moveVertice);
     if (Vertex.outOfBounds(AbstractViewport.enemies[i], AbstractViewport.ENEMY_VIEWPORT_BOUNDS)) {
       toDelete.unshift(i);
     }
   }
-  for (var i=0; i<toDelete.length; i++) {
+  for (i=0; i<toDelete.length; i++) {
     AbstractViewport.enemies.splice(toDelete[i], 1);
   }
-}
+};
 
 AbstractViewport.emptyEnemies = function() {
   AbstractViewport.enemies = [];
@@ -197,7 +198,7 @@ AbstractViewport.emptyEnemies = function() {
   };
   AbstractViewport.enemyLastSet = 0;
   AbstractViewport.enemyLastDirectionChange = 0;
-}
+};
 
 // ------------------------------------------------------------------- COLLISION
 AbstractViewport.playerCollisionWithEnemies = function() {
@@ -207,15 +208,15 @@ AbstractViewport.playerCollisionWithEnemies = function() {
     }
   }
   return false;
-}
+};
 
 // ------------------------------------------------------------------------ MOVE
 AbstractViewport.setEnemyDirection = function(delta) {
   AbstractViewport.enemyLastDirectionChange += delta;
-  if ((AbstractViewport.enemyDirection.x != 0 || AbstractViewport.enemyDirection.y != 0) && AbstractViewport.enemyLastDirectionChange < 4000) {
+  if ((AbstractViewport.enemyDirection.x !== 0 || AbstractViewport.enemyDirection.y !== 0) && AbstractViewport.enemyLastDirectionChange < 4000) {
     return false;
   }
-  if ((AbstractViewport.enemyDirection.x != 0 || AbstractViewport.enemyDirection.y != 0) || Math.floor(Math.random() * 10) == 0) {
+  if ((AbstractViewport.enemyDirection.x !== 0 || AbstractViewport.enemyDirection.y !== 0) || Math.floor(Math.random() * 10) === 0) {
     AbstractViewport.enemyLastDirectionChange -= 4000;
     var keys = Object.keys(AbstractViewport.DIRECTION);
     var newDirection;
@@ -226,15 +227,15 @@ AbstractViewport.setEnemyDirection = function(delta) {
     return true;
   }
   return false;
-}
+};
 
 AbstractViewport.getEnemyDirection = function() {
   return AbstractViewport.enemyDirection;
-}
+};
 
 AbstractViewport.setGlobalMove = function(move) {
   AbstractViewport.addMoves(AbstractViewport.enemyMove, move, AbstractViewport.BOX_SIZE);
-}
+};
 
 AbstractViewport.addMoves = function(move1, move2, modulo, clamp) {
   move1.x += move2.x;
@@ -243,7 +244,7 @@ AbstractViewport.addMoves = function(move1, move2, modulo, clamp) {
     move1.x %= modulo;
     move1.y %= modulo;
   }
-  if (clamp != undefined) {
+  if (clamp !== undefined) {
     if (move1.x > clamp.max) {
       move1.x = clamp.max;
     }
@@ -257,4 +258,4 @@ AbstractViewport.addMoves = function(move1, move2, modulo, clamp) {
       move1.y = clamp.min;
     }
   }
-}
+};

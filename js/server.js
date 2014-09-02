@@ -33,14 +33,14 @@ wss.on('connection', function(ws) {
         ready.push(index);
         if (ready.length == clients.length) {
           startGame();
-        };
+        }
       }
       else if (json.status == "over") {
         ready.splice(ready.indexOf(index), 1);
         over.push(index);
         if (over.length == clients.length) {
           stopGame();
-        };
+        }
       }
     }
   });
