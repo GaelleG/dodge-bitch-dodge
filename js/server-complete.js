@@ -444,19 +444,27 @@ wss.on('connection', function(ws) {
       players[index] = json.player;
       broadcastFriends(index);
     }
-    else if (json.status !== undefined) {
-      if (json.status == "ready") {
-        ready.push(index);
-        if (ready.length == clients.length) {
-          startGame();
-        }
-      }
-      else if (json.status == "over") {
-        ready.splice(ready.indexOf(index), 1);
-        over.push(index);
-        if (over.length == clients.length) {
-          stopGame();
-        }
+    // else if (json.status !== undefined) {
+    //   if (json.status == "ready") {
+    //     ready.push(index);
+    //     if (ready.length == clients.length) {
+    //       startGame();
+    //     }
+    //   }
+    //   else if (json.status == "over") {
+    //     ready.splice(ready.indexOf(index), 1);
+    //     over.push(index);
+    //     if (over.length == clients.length) {
+    //       stopGame();
+    //     }
+    //   }
+    // }
+    else if (json.get !== undefined) {
+      if (json.get == "enemyDirection") {
+        ws.send(JSON.stringify({
+          enemyDirection: AbstractViewport.enemyDirection,
+          enemies: AbstractViewport.enemies,
+        })); 
       }
     }
   });
@@ -557,3 +565,5 @@ function stopGame() {
   ready = [];
   over = [];
 }
+
+startGame();

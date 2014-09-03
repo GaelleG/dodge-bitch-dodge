@@ -38,7 +38,6 @@
             body,
             button {
                 font-family: "Trebuchet MS", Arial;
-                text-transform: uppercase;
             }
             body {
                 width:  100vw;
@@ -70,7 +69,13 @@
             #menu {
                 background-color: rgba(0,0,0,0.6);
             }
+            #loading {
+                display: none;
+                margin-top: 8px;
+
+            }
             h1 {
+                text-transform: uppercase;
                 font-size: 8vw;
                 margin: 0px;
             }
@@ -83,13 +88,14 @@
                 font-weight: normal;
                 cursor: pointer;
                 outline: none;
+                text-transform: uppercase;
             }
             button:active {
                 background-color: #5e3b41;
             }
         </style>
     </head>
-    <body onload="loadGame();start()">
+    <body onload="setGame();start()">
         <canvas id="glcanvas">
             Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.
         </canvas>
@@ -97,6 +103,7 @@
             <div id="menu">
                 <h1>dodge bitch dodge</h1>
                 <button id="play">play</button>
+                <div id="loading">connecting...</div>
             </div>
         </div>
     </body>

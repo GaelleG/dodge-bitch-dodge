@@ -25,66 +25,29 @@ var GAME_STATE = {
   menu: 0,
   ingame: 1,
   over: 2,
+  loading: 3,
 };
+var PLAYER_INVINCIBILITY = 2000;
 
 // ---------------------------------------------------------------------- GLOBAL
 var enemies = [];
 var player = [];
+var playerInvincibility = 0;
 var friends = [];
 var canvas;
 var menu;
 var play;
 var gs = GAME_STATE.menu;
+var local = true;
+var socket = null;
+var socketObject = {};
+var loading = false;
 
 // =============================================================================
 //                                 GAME LOADING
 // =============================================================================
 
-function loadGame() {
-
-// ---------------------------------------------------------------------- SOCKET
-var local = true;
-try {
-  var socket = new WebSocket("ws://127.0.0.1:1337");
-  var socketObject = {};
-  socket.onmessage = function(event) {
-    local = false;
-    var object = JSON.parse(event.data);
-    if (object.player !== undefined) {
-      socketObject.player = object.player;
-      setPlayer();
-    }
-    if (object.enemies !== undefined) {
-      if (gs == GAME_STATE.ingame) {
-        updateEnemies(object.enemies);
-      }
-    }
-    if (object.newEnemy !== undefined) {
-      if (gs == GAME_STATE.ingame) {
-        addEnemy(object.newEnemy);
-      }
-    }
-    if (object.enemyDirection !== undefined) {
-      socketObject.enemyDirection = object.enemyDirection;
-    }
-    if (object.gameStatus !== undefined) {
-      if (object.gameStatus == "ingame") {
-        startGame();
-      }
-      if (object.gameStatus == "over") {
-        stopGame();
-      }
-    }
-    if (object.friends !== undefined) {
-      updateFriends(object.friends);
-    }
-  };
-  socket.onclose = function() {
-    local = true;
-  };
-}
-catch (e) {
-}
+function setGame() {
 
 // ------------------------------------------------------------------------- DOM
 canvas = document.getElementById("glcanvas");
@@ -92,20 +55,59 @@ canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
 menu = document.getElementById("menu");
 play = document.getElementById("play");
+loading = document.getElementById("loading");
 
 // =============================================================================
 //                                   FUNCTIONS
 // =============================================================================
 
+// ---------------------------------------------------------------------- SOCKET
+function setWebSocket() {
+  (function(){
+    setTimeout(function(){
+      if (local) {
+        startGame();
+      }
+    }, 5000);
+  })();
+  try {
+    socket = new WebSocket("ws://127.0.0.1:1337");
+    socketObject = {};
+    socket.onmessage = function(event) {
+      local = false;
+      var object = JSON.parse(event.data);
+      if (object.enemies !== undefined) {
+        if (gs == GAME_STATE.ingame || gs == GAME_STATE.loading) {
+          updateEnemies(object.enemies);
+        }
+      }
+      if (object.newEnemy !== undefined) {
+        if (gs == GAME_STATE.ingame) {
+          addEnemy(object.newEnemy);
+        }
+      }
+      if (object.enemyDirection !== undefined) {
+        socketObject.enemyDirection = object.enemyDirection;
+        if (gs == GAME_STATE.loading) {
+          startGame();
+        }
+      }
+      if (object.friends !== undefined) {
+        updateFriends(object.friends);
+      }
+    };
+    socket.onclose = function() {
+      local = true;
+    };
+  }
+  catch (e) {
+    startGame();
+  }
+}
+
 // ---------------------------------------------------------------------- PLAYER
 function setPlayer() {
-  if (local) {
-    AbstractViewport.setPlayer();
-  }
-  else {
-    AbstractViewport.player = socketObject.player;
-    socket.send(JSON.stringify({player:AbstractViewport.player}));
-  }
+  AbstractViewport.setPlayer();
   player = Vertex.multiplyMatrix(AbstractViewport.player, BOX_SIZE);
 }
 
@@ -177,9 +179,11 @@ function updateFriends(_friends) {
 var gameLoop;
 function startGame() {
   gs = GAME_STATE.ingame;
-  emptyEnemies();
+  play.style.display = "inline";
+  loading.style.display = "none";
   menu.style.display = "none";
   setPlayer();
+  playerInvincibility = PLAYER_INVINCIBILITY;
   var delta = 0;
   var oldTime = Date.now();
   var newTime = Date.now();
@@ -197,7 +201,8 @@ function startGame() {
           socket.send(JSON.stringify({player: AbstractViewport.player}));
         }
       }
-      if (AbstractViewport.playerCollisionWithEnemies()) {
+      playerInvincibility -= delta;
+      if (AbstractViewport.playerCollisionWithEnemies() && playerInvincibility <= 0) {
         stopGame();
         if (!local) {
           socket.send(JSON.stringify({status: "over"}));
@@ -215,6 +220,18 @@ function stopGame() {
   emptyPlayer();
   friends = [];
   showMenu();
+}
+
+function loadGame() {
+  gs = GAME_STATE.loading;
+  play.style.display = "none";
+  loading.style.display = "block";
+  if (local) {
+    setWebSocket();
+  }
+  if (!local) {
+    socket.send(JSON.stringify({get:'enemyDirection'}));
+  }
 }
 
 // ------------------------------------------------------------------------ MENU
@@ -250,12 +267,7 @@ window.addEventListener("keyup", function (event) {
 }, true);
 
 play.addEventListener("click", function (event) {
-  if (local) {
-    startGame();
-  }
-  else {
-    socket.send(JSON.stringify({status:"ready"}));
-  }
+  loadGame();
 });
 
 }
