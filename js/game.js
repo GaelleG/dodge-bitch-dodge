@@ -33,7 +33,7 @@ var PLAYER_INVINCIBILITY = 2000;
 var enemies = [];
 var player = [];
 var playerInvincibility = 0;
-var friends = [];
+var friends = {};
 var canvas;
 var menu;
 var play;
@@ -63,13 +63,19 @@ loading = document.getElementById("loading");
 
 // ---------------------------------------------------------------------- SOCKET
 function setWebSocket() {
-  (function(){
+  var getInit = setInterval(function(){
+    if (!local) {
+      socket.send(JSON.stringify({get:"init"}));
+    }
+  }, 100);
+  (function(getInit){
     setTimeout(function(){
+      clearInterval(getInit);
       if (local) {
         startGame();
       }
     }, 5000);
-  })();
+  })(getInit);
   try {
     socket = new WebSocket("ws://127.0.0.1:1337");
     socketObject = {};
@@ -89,6 +95,7 @@ function setWebSocket() {
       if (object.enemyDirection !== undefined) {
         socketObject.enemyDirection = object.enemyDirection;
         if (gs == GAME_STATE.loading) {
+          clearInterval(getInit);
           startGame();
         }
       }
@@ -109,6 +116,9 @@ function setWebSocket() {
 function setPlayer() {
   AbstractViewport.setPlayer();
   player = Vertex.multiplyMatrix(AbstractViewport.player, BOX_SIZE);
+  if (!local) {
+    socket.send(JSON.stringify({player: AbstractViewport.player}));
+  }
 }
 
 function emptyPlayer() {
@@ -167,11 +177,21 @@ function updateFriends(_friends) {
     return;
   }
   var indexes = Object.keys(_friends);
-  for (var i=0; i<indexes.length; i++) {
-    while (friends.length < indexes.length) {
-      friends.push([]);
+  for (var index in friends) {
+    if(friends.hasOwnProperty(index) && indexes.indexOf(index) == -1){
+      delete friends[index];
     }
-    friends[indexes[i]] = Vertex.multiplyMatrix(_friends[indexes[i]], BOX_SIZE);
+    else if (friends[index].length < 12) {
+      delete friends[index];
+    }
+  }
+  for (var i=0; i<indexes.length; i++) {
+    if (_friends[indexes[i]].length < 12) {
+      delete friends[indexes[i]];
+    }
+    else {
+      friends[indexes[i]] = Vertex.multiplyMatrix(_friends[indexes[i]], BOX_SIZE);
+    }
   }
 }
 
@@ -179,6 +199,9 @@ function updateFriends(_friends) {
 var gameLoop;
 function startGame() {
   gs = GAME_STATE.ingame;
+  if (!local) {
+    socket.send(JSON.stringify({status:gs}));
+  }
   play.style.display = "inline";
   loading.style.display = "none";
   menu.style.display = "none";
@@ -215,10 +238,13 @@ function startGame() {
 
 function stopGame() {
   gs = GAME_STATE.over;
+  if (!local) {
+    socket.send(JSON.stringify({status:gs}));
+  }
   clearInterval(gameLoop);
   emptyEnemies();
   emptyPlayer();
-  friends = [];
+  friends = {};
   showMenu();
 }
 
@@ -229,8 +255,8 @@ function loadGame() {
   if (local) {
     setWebSocket();
   }
-  if (!local) {
-    socket.send(JSON.stringify({get:'enemyDirection'}));
+  else {
+    socket.send(JSON.stringify({get:"init"}));
   }
 }
 

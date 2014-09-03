@@ -6,13 +6,25 @@
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+// ----------------------------------------------------------------------- CONST
+var GAME_STATE = {
+  menu: 0,
+  ingame: 1,
+  over: 2,
+  loading: 3,
+};
+
 // ---------------------------------------------------------------------- GLOBAL
 var WebSocketServer = require('ws').Server;
 var wss = new WebSocketServer({port: 1337, origin: 'http://127.0.0.1'});
 var clients = [];
-var players = {};
-var ready = [];
-var over = [];
+
+// ---------------------------------------------------------------------- CLIENT
+function Client(ws) {
+  this.connection = ws;
+  this.vertice = [];
+  this.status = GAME_STATE.ingame;
+}
 
 // =============================================================================
 //                              WEB SOCKET SERVER                              
@@ -21,64 +33,44 @@ var over = [];
 // ------------------------------------------------------------------ CONNECTION
 wss.on('connection', function(ws) {
   var index = clients.length;
-  clients.push(ws);
+  var client = new Client(ws);
+  clients.push(client);
   ws.on('message', function(message) {
     var json = JSON.parse(message);
     if (json.player !== undefined) {
-      players[index] = json.player;
-      broadcastFriends(index);
+      clients[index].vertices = json.player;
+      broadcastPlayer(index);
     }
-    // else if (json.status !== undefined) {
-    //   if (json.status == "ready") {
-    //     ready.push(index);
-    //     if (ready.length == clients.length) {
-    //       startGame();
-    //     }
-    //   }
-    //   else if (json.status == "over") {
-    //     ready.splice(ready.indexOf(index), 1);
-    //     over.push(index);
-    //     if (over.length == clients.length) {
-    //       stopGame();
-    //     }
-    //   }
-    // }
+    else if (json.status !== undefined) {
+      if (json.status == GAME_STATE.ingame) {
+        clients[index].status = GAME_STATE.ingame;
+        broadcastPlayer(index);
+      }
+      else if (json.status == GAME_STATE.over) {
+        clients[index].status = GAME_STATE.over;
+        broadcastPlayer(index);
+      }
+    }
     else if (json.get !== undefined) {
-      if (json.get == "enemyDirection") {
+      if (json.get == "init") {
         ws.send(JSON.stringify({
           enemyDirection: AbstractViewport.enemyDirection,
           enemies: AbstractViewport.enemies,
+          friends: getFriends(index),
         })); 
       }
     }
   });
   ws.on('close', function() {
-    clients.splice(clients.indexOf(index), 1);
+    clients.splice(index, 1);
   });
-  ws.send(JSON.stringify({player:players[index]}));
 });
 
 // ------------------------------------------------------------------- BROADCAST
 wss.broadcast = function(data) {
-  for(var i in this.clients)
-    this.clients[i].send(data);
+  for(var i in clients)
+    clients[i].connection.send(data);
 };
-
-function broadcastStartGame() {
-  wss.broadcast(JSON.stringify({
-    player: AbstractViewport.player,
-    friends: AbstractViewport.friends,
-    enemies: AbstractViewport.enemies,
-    enemyDirection: AbstractViewport.enemyDirection,
-    gameStatus: 'ingame',
-  }));
-}
-
-function broadcastStopGame() {
-  wss.broadcast(JSON.stringify({
-    gameStatus: 'over',
-  }));
-}
 
 function broadcastEnemies() {
   wss.broadcast(JSON.stringify({
@@ -99,14 +91,21 @@ function broadcastNewEnemy() {
   }));
 }
 
-function broadcastFriends(index) {
+function broadcastPlayer(index) {
   for(var i in clients) {
+    clients[i].connection.send(JSON.stringify({friends: getFriends(i)}));
+  }
+}
+
+// --------------------------------------------------------------------- FRIENDS
+function getFriends(index) {
+  var friends = {};
+  for (var i in clients) {
     if (i != index) {
-      var friends = {};
-      friends[index] = players[index];
-      clients[i].send(JSON.stringify({friends: friends}));
+      friends[i] = (clients[i].status == GAME_STATE.ingame) ? clients[i].vertices : [];
     }
   }
+  return friends;
 }
 
 // =============================================================================
@@ -132,22 +131,15 @@ function startGame() {
         broadcastEnemyDirection();
       }
       AbstractViewport.moveEnemies(delta, AbstractViewport.getEnemyDirection());
-      // if (AbstractViewport.playerCollisionWithEnemies()) {
-      //   stopGame();
-      //   broadcastStopGame();
-      // }
     },
     10
   );
-  broadcastStartGame();
 }
 
 function stopGame() {
   clearInterval(gameLoop);
   AbstractViewport.emptyEnemies();
   AbstractViewport.emptyPlayer();
-  ready = [];
-  over = [];
 }
 
 startGame();

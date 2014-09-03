@@ -67,15 +67,16 @@ function updateBuffers() {
   }
 
   // friends
-  while (friendVerticeBuffers.length > friends.length) {
+  var friendsKeys = Object.keys(friends);
+  while (friendVerticeBuffers.length > friendsKeys.length) {
     friendVerticeBuffers.pop();
   }
-  for (i=friendVerticeBuffers.length; i<friends.length; i++) {
+  for (i=friendVerticeBuffers.length; i<friendsKeys.length; i++) {
     friendVerticeBuffers.push(gl.createBuffer());
   }
-  for (i=0; i<friends.length; i++) {
+  for (i=0; i<friendsKeys.length; i++) {
     gl.bindBuffer(gl.ARRAY_BUFFER, friendVerticeBuffers[i]);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(friends[i]), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(friends[friendsKeys[i]]), gl.STATIC_DRAW);
   }
 
   // player
