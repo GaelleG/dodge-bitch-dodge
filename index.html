@@ -16,8 +16,9 @@
             }
         </script>
         <script id="shader-fs-friend" type="x-shader/x-fragment">
+            varying lowp vec4 vColor;
             void main(void) {
-                gl_FragColor = vec4(0.47, 0.30, 0.33, 0.8);
+                gl_FragColor = vColor;
             }
         </script>
         <script id="shader-fs-player" type="x-shader/x-fragment">
@@ -28,10 +29,13 @@
         <!-- Vertex shader program -->
         <script id="shader-vs" type="x-shader/x-vertex">
             attribute vec3 aVertexPosition;
+            attribute vec4 aVertexColor;
             uniform mat4 uMVMatrix;
             uniform mat4 uPMatrix;
+            varying lowp vec4 vColor;
             void main(void) {
                 gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+                vColor = aVertexColor;
             }
         </script>
         <style>

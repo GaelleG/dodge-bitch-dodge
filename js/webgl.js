@@ -3,15 +3,71 @@
 // https://developer.mozilla.org/samples/webgl/sample2/webgl-demo.js
 // =============================================================================
 
+// ----------------------------------------------------------------------- CONST
+var COLORS = [
+  // Gagris blue
+  [
+    56/255, 124/255, 181/255, 0.5,
+    56/255, 124/255, 181/255, 0.5,
+    56/255, 124/255, 181/255, 0.5,
+    56/255, 124/255, 181/255, 0.5,
+  ],
+  // Gagris orange
+  [
+    232/255, 137/255, 37/255, 0.5,
+    232/255, 137/255, 37/255, 0.5,
+    232/255, 137/255, 37/255, 0.5,
+    232/255, 137/255, 37/255, 0.5,
+  ],
+  // Gagris yellow
+  [
+    255/255, 189/255, 48/255, 0.5,
+    255/255, 189/255, 48/255, 0.5,
+    255/255, 189/255, 48/255, 0.5,
+    255/255, 189/255, 48/255, 0.5,
+  ],
+  // Gagris cyan
+  [
+    121/255, 195/255, 224/255, 0.5,
+    121/255, 195/255, 224/255, 0.5,
+    121/255, 195/255, 224/255, 0.5,
+    121/255, 195/255, 224/255, 0.5,
+  ],
+  // Gagris purple
+  [
+    159/255, 84/255, 191/255, 0.5,
+    159/255, 84/255, 191/255, 0.5,
+    159/255, 84/255, 191/255, 0.5,
+    159/255, 84/255, 191/255, 0.5,
+  ],
+  // Gagris green
+  [
+    85/255, 181/255, 107/255, 0.5,
+    85/255, 181/255, 107/255, 0.5,
+    85/255, 181/255, 107/255, 0.5,
+    85/255, 181/255, 107/255, 0.5,
+  ],
+  // Gagris red
+  [
+    229/255, 82/255, 82/255, 0.5,
+    229/255, 82/255, 82/255, 0.5,
+    229/255, 82/255, 82/255, 0.5,
+    229/255, 82/255, 82/255, 0.5,
+  ],
+];
+
+// ---------------------------------------------------------------------- GLOBAL
 var gl;
 var enemyVerticeBuffers = [];
 var playerVerticeBuffer = [];
 var friendVerticeBuffers = [];
+var squareVerticesColorBuffers = [];
 var mvMatrix;
 var fragmentProgramEnemy;
 var fragmentProgramPlayer;
 var currentProgram;
 var vertexPositionAttribute;
+var vertexColorAttribute;
 var perspectiveMatrix;
 
 function start() {
@@ -76,7 +132,7 @@ function updateBuffers() {
   }
   for (i=0; i<friendsKeys.length; i++) {
     gl.bindBuffer(gl.ARRAY_BUFFER, friendVerticeBuffers[i]);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(friends[friendsKeys[i]]), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(friends[friendsKeys[i]].vertices), gl.STATIC_DRAW);
   }
 
   // player
@@ -89,6 +145,18 @@ function updateBuffers() {
   for (i=0; i<playerVerticeBuffer.length; i++) {
     gl.bindBuffer(gl.ARRAY_BUFFER, playerVerticeBuffer[i]);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(player), gl.STATIC_DRAW);
+  }
+
+  // colors
+  while (squareVerticesColorBuffers.length > COLORS.length) {
+    squareVerticesColorBuffers.pop();
+  }
+  for (i=squareVerticesColorBuffers.length; i<COLORS.length; i++) {
+    squareVerticesColorBuffers.push(gl.createBuffer());
+  }
+  for (i=0; i<COLORS.length; i++) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesColorBuffers[i]);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(COLORS[i]), gl.STATIC_DRAW);
   }
 }
 
@@ -104,8 +172,8 @@ function drawScene() {
   mvTranslate([-0.0, 0.0, -6.0]);
   setMatrixUniforms();
   vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
-  gl.enableVertexAttribArray(vertexPositionAttribute);
   for (i=0; i<enemyVerticeBuffers.length; i++) {
+    gl.enableVertexAttribArray(vertexPositionAttribute);
     gl.bindBuffer(gl.ARRAY_BUFFER, enemyVerticeBuffers[i]);
     gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -118,9 +186,14 @@ function drawScene() {
   loadIdentity();
   mvTranslate([-0.0, 0.0, -6.0]);
   setMatrixUniforms();
+  vertexColorAttribute = gl.getAttribLocation(currentProgram, "aVertexColor");
   vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
-  gl.enableVertexAttribArray(vertexPositionAttribute);
+  var friendsIndexes = Object.keys(friends);
   for (i=0; i<friendVerticeBuffers.length; i++) {
+    gl.enableVertexAttribArray(vertexColorAttribute);
+    gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesColorBuffers[friends[friendsIndexes[i]].color]);
+    gl.vertexAttribPointer(vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vertexPositionAttribute);
     gl.bindBuffer(gl.ARRAY_BUFFER, friendVerticeBuffers[i]);
     gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

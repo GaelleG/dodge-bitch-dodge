@@ -190,7 +190,13 @@ function updateFriends(_friends) {
       delete friends[indexes[i]];
     }
     else {
-      friends[indexes[i]] = Vertex.multiplyMatrix(_friends[indexes[i]], BOX_SIZE);
+      if (friends[indexes[i]] === undefined) {
+        friends[indexes[i]] = {};
+      }
+      friends[indexes[i]].vertices = Vertex.multiplyMatrix(_friends[indexes[i]], BOX_SIZE);
+      if (friends[indexes[i]].color === undefined) {
+        friends[indexes[i]].color = Math.floor(Math.random()*7);
+      }
     }
   }
 }
