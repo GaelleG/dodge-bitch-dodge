@@ -83,18 +83,16 @@ players = document.getElementById("players");
 // ---------------------------------------------------------------------- SOCKET
 function setWebSocket() {
   var getInit = setInterval(function(){
-    if (!local) {
-      socket.send(JSON.stringify({get:"init"}));
-    }
-  }, 100);
-  (function(getInit){
-    setTimeout(function(){
-      clearInterval(getInit);
-      if (local) {
+    if (socket !== undefined && socket.readyState !== undefined) {
+      if (socket.readyState == WebSocket.OPEN) {
+        socket.send(JSON.stringify({get:"init"}));
+      }
+      else if (socket.readyState == WebSocket.CLOSING || socket.readyState == WebSocket.CLOSED) {
+        clearInterval(getInit);
         startGame();
       }
-    }, 5000);
-  })(getInit);
+    }
+  }, 100);
   try {
     socket = new WebSocket("ws://127.0.0.1:1337");
     socketObject = {};
