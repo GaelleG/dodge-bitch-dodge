@@ -28,20 +28,38 @@ var GAME_STATE = {
   loading: 3,
 };
 var PLAYER_INVINCIBILITY = 2000;
+var COLORS = [
+  // Gagris blue
+  [56, 124, 181, 1],
+  // Gagris orange
+  [232, 137, 37, 1],
+  // Gagris yellow
+  [255, 189, 48, 1],
+  // Gagris cyan
+  [121, 195, 224, 1],
+  // Gagris purple
+  [159, 84, 191, 1],
+  // Gagris green
+  [85, 181, 107, 1],
+  // Gagris red
+  [229, 82, 82, 1],
+];
 
 // ---------------------------------------------------------------------- GLOBAL
 var enemies = [];
 var player = [];
 var playerInvincibility = 0;
+var playerScore;
 var friends = {};
 var canvas;
 var menu;
 var play;
+var loading;
+var players;
 var gs = GAME_STATE.menu;
 var local = true;
 var socket = null;
 var socketObject = {};
-var loading = false;
 
 // =============================================================================
 //                                 GAME LOADING
@@ -56,6 +74,7 @@ canvas.height = CANVAS_HEIGHT;
 menu = document.getElementById("menu");
 play = document.getElementById("play");
 loading = document.getElementById("loading");
+players = document.getElementById("players");
 
 // =============================================================================
 //                                   FUNCTIONS
@@ -135,6 +154,23 @@ function movePlayer(delta) {
   }
 }
 
+function setPlayerDom() {
+  if (document.getElementById("me") === null) {
+    playerScore = document.createElement("div");
+    playerScore.id = "me";
+    var colorDiv = document.createElement("div");
+    colorDiv.className = "color";
+    playerScore.appendChild(colorDiv);
+    var scoreDiv = document.createElement("div");
+    scoreDiv.className = "score";
+    playerScore.appendChild(scoreDiv);
+    var nameDiv = document.createElement("div");
+    nameDiv.className = "name";
+    playerScore.appendChild(nameDiv);
+    players.appendChild(playerScore);
+  }
+}
+
 // --------------------------------------------------------------------- ENEMIES
 function setEnemy(delta) {
   AbstractViewport.setEnemy(delta);
@@ -180,14 +216,17 @@ function updateFriends(_friends) {
   for (var index in friends) {
     if(friends.hasOwnProperty(index) && indexes.indexOf(index) == -1){
       delete friends[index];
+      removeFriendDom(index);
     }
     else if (friends[index].length < 12) {
       delete friends[index];
+      removeFriendDom(index);
     }
   }
   for (var i=0; i<indexes.length; i++) {
     if (_friends[indexes[i]].length < 12) {
       delete friends[indexes[i]];
+      removeFriendDom(indexes[i]);
     }
     else {
       if (friends[indexes[i]] === undefined) {
@@ -195,15 +234,42 @@ function updateFriends(_friends) {
       }
       friends[indexes[i]].vertices = Vertex.multiplyMatrix(_friends[indexes[i]], BOX_SIZE);
       if (friends[indexes[i]].color === undefined) {
-        friends[indexes[i]].color = Math.floor(Math.random()*7);
+        friends[indexes[i]].color = Math.floor(Math.random()*COLORS.length);
       }
+      setFriendDom(indexes[i]);
     }
+  }
+}
+
+function setFriendDom(index) {
+  if (document.getElementById("friend" + index) === null) {
+    var friendDiv = document.createElement("div");
+    friendDiv.id = "friend" + index;
+    var colorDiv = document.createElement("div");
+    colorDiv.className = "color";
+    colorDiv.style.backgroundColor = "rgba(" + COLORS[friends[index].color][0] + "," + COLORS[friends[index].color][1] + "," + COLORS[friends[index].color][2] + "," + COLORS[friends[index].color][3] + ")";
+    friendDiv.appendChild(colorDiv);
+    var scoreDiv = document.createElement("div");
+    scoreDiv.className = "score";
+    friendDiv.appendChild(scoreDiv);
+    var nameDiv = document.createElement("div");
+    nameDiv.className = "name";
+    friendDiv.appendChild(nameDiv);
+    players.appendChild(friendDiv);
+  }
+}
+
+function removeFriendDom(index) {
+  var friendDom = document.getElementById("friend" + index);
+  if (friendDom !== null) {
+    friendDom.remove();
   }
 }
 
 // ------------------------------------------------------------------------ GAME
 var gameLoop;
 function startGame() {
+  setPlayerDom();
   gs = GAME_STATE.ingame;
   if (!local) {
     socket.send(JSON.stringify({status:gs}));
@@ -251,6 +317,9 @@ function stopGame() {
   emptyEnemies();
   emptyPlayer();
   friends = {};
+  while (players.firstChild) {
+    players.removeChild(players.firstChild);
+  }
   showMenu();
 }
 

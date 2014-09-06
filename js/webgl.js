@@ -4,57 +4,15 @@
 // =============================================================================
 
 // ----------------------------------------------------------------------- CONST
-var COLORS = [
-  // Gagris blue
-  [
-    56/255, 124/255, 181/255, 0.5,
-    56/255, 124/255, 181/255, 0.5,
-    56/255, 124/255, 181/255, 0.5,
-    56/255, 124/255, 181/255, 0.5,
-  ],
-  // Gagris orange
-  [
-    232/255, 137/255, 37/255, 0.5,
-    232/255, 137/255, 37/255, 0.5,
-    232/255, 137/255, 37/255, 0.5,
-    232/255, 137/255, 37/255, 0.5,
-  ],
-  // Gagris yellow
-  [
-    255/255, 189/255, 48/255, 0.5,
-    255/255, 189/255, 48/255, 0.5,
-    255/255, 189/255, 48/255, 0.5,
-    255/255, 189/255, 48/255, 0.5,
-  ],
-  // Gagris cyan
-  [
-    121/255, 195/255, 224/255, 0.5,
-    121/255, 195/255, 224/255, 0.5,
-    121/255, 195/255, 224/255, 0.5,
-    121/255, 195/255, 224/255, 0.5,
-  ],
-  // Gagris purple
-  [
-    159/255, 84/255, 191/255, 0.5,
-    159/255, 84/255, 191/255, 0.5,
-    159/255, 84/255, 191/255, 0.5,
-    159/255, 84/255, 191/255, 0.5,
-  ],
-  // Gagris green
-  [
-    85/255, 181/255, 107/255, 0.5,
-    85/255, 181/255, 107/255, 0.5,
-    85/255, 181/255, 107/255, 0.5,
-    85/255, 181/255, 107/255, 0.5,
-  ],
-  // Gagris red
-  [
-    229/255, 82/255, 82/255, 0.5,
-    229/255, 82/255, 82/255, 0.5,
-    229/255, 82/255, 82/255, 0.5,
-    229/255, 82/255, 82/255, 0.5,
-  ],
-];
+var SQUARE_COLORS = [];
+for (var i in COLORS) {
+  SQUARE_COLORS.push([
+    COLORS[i][0]/255, COLORS[i][1]/255, COLORS[i][2]/255, 0.3,
+    COLORS[i][0]/255, COLORS[i][1]/255, COLORS[i][2]/255, 0.3,
+    COLORS[i][0]/255, COLORS[i][1]/255, COLORS[i][2]/255, 0.3,
+    COLORS[i][0]/255, COLORS[i][1]/255, COLORS[i][2]/255, 0.3,
+  ]);
+}
 
 // ---------------------------------------------------------------------- GLOBAL
 var gl;
@@ -148,15 +106,15 @@ function updateBuffers() {
   }
 
   // colors
-  while (squareVerticesColorBuffers.length > COLORS.length) {
+  while (squareVerticesColorBuffers.length > SQUARE_COLORS.length) {
     squareVerticesColorBuffers.pop();
   }
-  for (i=squareVerticesColorBuffers.length; i<COLORS.length; i++) {
+  for (i=squareVerticesColorBuffers.length; i<SQUARE_COLORS.length; i++) {
     squareVerticesColorBuffers.push(gl.createBuffer());
   }
-  for (i=0; i<COLORS.length; i++) {
+  for (i=0; i<SQUARE_COLORS.length; i++) {
     gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesColorBuffers[i]);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(COLORS[i]), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(SQUARE_COLORS[i]), gl.STATIC_DRAW);
   }
 }
 

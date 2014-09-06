@@ -52,9 +52,84 @@
                 overflow: hidden;
                 display: table-cell;
                 vertical-align: middle;
-                text-align: center;
                 background-color: #111111;
                 color: #eeeeee;
+            }
+            #viewport {
+                display: table;
+                width:  100vw;
+                height: 100vh;
+            }
+            #players {
+                background-color: #222222;
+            }
+            @media (orientation: landscape) {
+                #glcanvas,
+                #players {
+                    display: table-cell;
+                    height: 100vh;
+                }
+                #glcanvas {
+                    width: 100vh;
+                }
+                #players,
+                #players > div#me.not-ranked {
+                    width: calc(100vw - 100vh);
+                }
+                #players {
+                    vertical-align: top;
+                }
+            }
+            @media (orientation: portrait) {
+                #glcanvas,
+                #players,
+                #players > div#me.not-ranked {
+                    display: block;
+                    width: 100vw;
+                }
+                #glcanvas {
+                    height: 100vw;
+                }
+                #players {
+                    height: calc(100vh - 100vw);
+                }
+            }
+            #players > div {
+                padding: 5px;
+            }
+            #players > div:nth-child(odd) {
+                background-color: #272727;
+            }
+            #players > div > div {
+                vertical-align: middle;
+            }
+            #players > div .color {
+                width: 20px;
+                height: 20px;
+                background-color: #fab;
+                margin: 5px;
+                margin-right: 10px;
+                float: left;
+            }
+            #players > div .score {
+
+            }
+            #players > div .name {
+                font-size: 10px;
+            }
+            #players > div .name:before {
+                content: "name";
+            }
+            #players > div .score:before {
+                content: "OVER9000";
+            }
+            #players > div#me {
+                color: #222222;
+                background-color: #efefef;
+            }
+            #players > div#me.not-ranked {
+                position: fixed;
+                bottom: 0;
             }
             #hub {
                 position: absolute;
@@ -68,6 +143,7 @@
                 height: 100vh;
                 display: table-cell;
                 vertical-align: middle;
+                text-align: center;
                 font-size: 30px;
             }
             #menu {
@@ -100,9 +176,12 @@
         </style>
     </head>
     <body onload="setGame();start()">
-        <canvas id="glcanvas">
-            Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.
-        </canvas>
+        <div id="viewport">
+            <canvas id="glcanvas">
+                Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.
+            </canvas>
+            <div id="players"></div>
+        </div>
         <div id="hub">
             <div id="menu">
                 <h1>dodge bitch dodge</h1>
