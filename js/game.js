@@ -50,6 +50,7 @@ var enemies = [];
 var player = [];
 var playerInvincibility = 0;
 var playerScore;
+var playerColor = Math.floor(Math.random()*COLORS.length);
 var friends = {};
 var canvas;
 var menu;
@@ -158,6 +159,7 @@ function setPlayerDom() {
     playerScore.id = "me";
     var colorDiv = document.createElement("div");
     colorDiv.className = "color";
+    colorDiv.style.backgroundColor = "rgb(" + COLORS[playerColor][0] + "," + COLORS[playerColor][1] + "," + COLORS[playerColor][2] + ")";
     playerScore.appendChild(colorDiv);
     var scoreDiv = document.createElement("div");
     scoreDiv.className = "score";
@@ -339,6 +341,14 @@ function showMenu() {
   enemies = [];
   for (var i=0; i<((BOX_NB_X > BOX_NB_Y) ? BOX_NB_X*2 : BOX_NB_Y*2); i++) {
     enemies.push(Vertex.getRandomVertice(0, 0, BOX_NB_X, BOX_NB_Y, BOX_SIZE, AbstractViewport.ENEMY_MAX_SIZE, {x:0,y:0}));
+  }
+  showSettings();
+}
+
+function showSettings() {
+  var colorDiv = document.getElementById("color");
+  if (colorDiv !== null) {
+    colorDiv.style.backgroundColor = "rgb(" + COLORS[playerColor][0] + "," + COLORS[playerColor][1] + "," + COLORS[playerColor][2] + ")";
   }
 }
 

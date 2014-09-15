@@ -5,8 +5,15 @@
 
 // ----------------------------------------------------------------------- CONST
 var SQUARE_COLORS = [];
+var LIGHT_SQUARE_COLORS = [];
 for (var i in COLORS) {
   SQUARE_COLORS.push([
+    COLORS[i][0]/255, COLORS[i][1]/255, COLORS[i][2]/255, 1,
+    COLORS[i][0]/255, COLORS[i][1]/255, COLORS[i][2]/255, 1,
+    COLORS[i][0]/255, COLORS[i][1]/255, COLORS[i][2]/255, 1,
+    COLORS[i][0]/255, COLORS[i][1]/255, COLORS[i][2]/255, 1,
+  ]);
+  LIGHT_SQUARE_COLORS.push([
     COLORS[i][0]/255, COLORS[i][1]/255, COLORS[i][2]/255, 0.3,
     COLORS[i][0]/255, COLORS[i][1]/255, COLORS[i][2]/255, 0.3,
     COLORS[i][0]/255, COLORS[i][1]/255, COLORS[i][2]/255, 0.3,
@@ -20,6 +27,7 @@ var enemyVerticeBuffers = [];
 var playerVerticeBuffer = [];
 var friendVerticeBuffers = [];
 var squareVerticesColorBuffers = [];
+var squareVerticesLightColorBuffers = [];
 var mvMatrix;
 var fragmentProgramEnemy;
 var fragmentProgramPlayer;
@@ -116,6 +124,18 @@ function updateBuffers() {
     gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesColorBuffers[i]);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(SQUARE_COLORS[i]), gl.STATIC_DRAW);
   }
+
+  // light colors
+  while (squareVerticesLightColorBuffers.length > LIGHT_SQUARE_COLORS.length) {
+    squareVerticesLightColorBuffers.pop();
+  }
+  for (i=squareVerticesLightColorBuffers.length; i<LIGHT_SQUARE_COLORS.length; i++) {
+    squareVerticesLightColorBuffers.push(gl.createBuffer());
+  }
+  for (i=0; i<LIGHT_SQUARE_COLORS.length; i++) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesLightColorBuffers[i]);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(LIGHT_SQUARE_COLORS[i]), gl.STATIC_DRAW);
+  }
 }
 
 function drawScene() {
@@ -149,7 +169,7 @@ function drawScene() {
   var friendsIndexes = Object.keys(friends);
   for (i=0; i<friendVerticeBuffers.length; i++) {
     gl.enableVertexAttribArray(vertexColorAttribute);
-    gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesColorBuffers[friends[friendsIndexes[i]].color]);
+    gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesLightColorBuffers[friends[friendsIndexes[i]].color]);
     gl.vertexAttribPointer(vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vertexPositionAttribute);
     gl.bindBuffer(gl.ARRAY_BUFFER, friendVerticeBuffers[i]);
@@ -164,9 +184,14 @@ function drawScene() {
   loadIdentity();
   mvTranslate([-0.0, 0.0, -6.0]);
   setMatrixUniforms();
+  vertexColorAttribute = gl.getAttribLocation(currentProgram, "aVertexColor");
   vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
   gl.enableVertexAttribArray(vertexPositionAttribute);
   for (i=0; i<playerVerticeBuffer.length; i++) {
+    gl.enableVertexAttribArray(vertexColorAttribute);
+    gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesColorBuffers[playerColor]);
+    gl.vertexAttribPointer(vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vertexPositionAttribute);
     gl.bindBuffer(gl.ARRAY_BUFFER, playerVerticeBuffer[i]);
     gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
