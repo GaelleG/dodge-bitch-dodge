@@ -438,8 +438,9 @@ var clients = [];
 // ---------------------------------------------------------------------- CLIENT
 function Client(ws) {
   this.connection = ws;
-  this.vertice = [];
+  this.vertices = [];
   this.status = GAME_STATE.ingame;
+  this.name = "";
 }
 
 // =============================================================================
@@ -453,21 +454,29 @@ wss.on('connection', function(ws) {
   clients.push(client);
   ws.on('message', function(message) {
     var json = JSON.parse(message);
+    var broadcastPlayerNeeded = false;
     if (json.player !== undefined) {
       clients[index].vertices = json.player;
-      broadcastPlayer(index);
+      broadcastPlayerNeeded = true;
     }
-    else if (json.status !== undefined) {
+    if (json.playerName !== undefined) {
+      clients[index].name = json.playerName;
+      broadcastPlayerNeeded = true;
+    }
+    if (json.status !== undefined) {
       if (json.status == GAME_STATE.ingame) {
         clients[index].status = GAME_STATE.ingame;
-        broadcastPlayer(index);
+        broadcastPlayerNeeded = true;
       }
       else if (json.status == GAME_STATE.over) {
         clients[index].status = GAME_STATE.over;
-        broadcastPlayer(index);
+        broadcastPlayerNeeded = true;
       }
     }
-    else if (json.get !== undefined) {
+    if (broadcastPlayerNeeded) {
+      broadcastPlayer(index);
+    }
+    if (json.get !== undefined) {
       if (json.get == "init") {
         ws.send(JSON.stringify({
           enemyDirection: AbstractViewport.enemyDirection,
@@ -518,7 +527,7 @@ function getFriends(index) {
   var friends = {};
   for (var i in clients) {
     if (i != index) {
-      friends[i] = (clients[i].status == GAME_STATE.ingame) ? clients[i].vertices : [];
+      friends[i] = (clients[i].status == GAME_STATE.ingame) ? {vertices:clients[i].vertices, name:clients[i].name} : {};
     }
   }
   return friends;

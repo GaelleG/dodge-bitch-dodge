@@ -105,8 +105,8 @@
                 vertical-align: middle;
             }
             #players > div .color {
-                width: 20px;
-                height: 20px;
+                width: 24px;
+                height: 24px;
                 background-color: #fab;
                 margin: 5px;
                 margin-right: 10px;
@@ -117,9 +117,6 @@
             }
             #players > div .name {
                 font-size: 10px;
-            }
-            #players > div .name:before {
-                content: "name";
             }
             #players > div .score:before {
                 content: "OVER9000";
@@ -145,15 +142,14 @@
                 display: table-cell;
                 vertical-align: middle;
                 text-align: center;
-                font-size: 30px;
             }
             #menu {
                 background-color: rgba(0,0,0,0.6);
             }
             #loading {
                 display: none;
-                margin-top: 8px;
-
+                margin: 15px 0px;
+                font-size: 24px;
             }
             #settings > div {
                 display: inline-block;
@@ -166,17 +162,20 @@
                 margin: 5px;
             }
             #color {
-                width: 40px;
-                height: 40px;
+                width: 46px;
+                height: 46px;
                 background-color: #fab;
                 margin-right: 10px;
                 float: left;
             }
             #name {
+                display: block;
+                background-color: rgba(255,255,255,0.15);
+                color: #eee;
+                border: none;
+                margin: 0px 0px 4px;
+                padding: 3px 6px;
                 font-size: 18px;
-            }
-            #name:before {
-                content: "Name";
             }
             #bestscore {
                 font-size: 12px;
@@ -199,6 +198,7 @@
                 cursor: pointer;
                 outline: none;
                 text-transform: uppercase;
+                margin-top: 18px;
             }
             button:active {
                 background-color: #5e3b41;
@@ -219,7 +219,7 @@
                     <div>
                         <div id="color"></div>
                         <div>
-                            <div id="name"></div>
+                            <input id="name" type="text" placeholder="Name" maxlength="14" oninput="testPlayerName();"></input>
                             <div id="bestscore"></div>
                         </div>
                     </div>

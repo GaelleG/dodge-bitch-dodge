@@ -51,13 +51,16 @@ var player = [];
 var playerInvincibility = 0;
 var playerScore;
 var playerColor = Math.floor(Math.random()*COLORS.length);
+var playerName = "";
 var friends = {};
 var canvas;
 var menu;
 var play;
 var loading;
+var playerNameDiv;
+var testPlayerName;
 var players;
-var gs = GAME_STATE.menu;
+var gs = -1;
 var local = true;
 var socket = null;
 var socketObject = {};
@@ -76,6 +79,7 @@ menu = document.getElementById("menu");
 play = document.getElementById("play");
 loading = document.getElementById("loading");
 players = document.getElementById("players");
+playerNameDiv = document.getElementById("name");
 
 // =============================================================================
 //                                   FUNCTIONS
@@ -135,7 +139,10 @@ function setPlayer() {
   AbstractViewport.setPlayer();
   player = Vertex.multiplyMatrix(AbstractViewport.player, BOX_SIZE);
   if (!local) {
-    socket.send(JSON.stringify({player: AbstractViewport.player}));
+    socket.send(JSON.stringify({
+      player: AbstractViewport.player,
+      playerName: playerName
+    }));
   }
 }
 
@@ -166,10 +173,16 @@ function setPlayerDom() {
     playerScore.appendChild(scoreDiv);
     var nameDiv = document.createElement("div");
     nameDiv.className = "name";
+    nameDiv.innerHTML = (playerName.length > 0) ? playerName : "Noname";
     playerScore.appendChild(nameDiv);
     players.appendChild(playerScore);
   }
 }
+
+testPlayerName = function() {
+  playerNameDiv.value = playerNameDiv.value.replace(/([^a-zA-Z0-9])/g,"");
+  playerName = playerNameDiv.value;
+};
 
 // --------------------------------------------------------------------- ENEMIES
 function setEnemy(delta) {
@@ -218,13 +231,17 @@ function updateFriends(_friends) {
       delete friends[index];
       removeFriendDom(index);
     }
-    else if (friends[index].length < 12) {
+    else if (!friends[index].hasOwnProperty("vertices") ||
+      !friends[index].hasOwnProperty("name") ||
+      friends[index].vertices.length < 12) {
       delete friends[index];
       removeFriendDom(index);
     }
   }
   for (var i=0; i<indexes.length; i++) {
-    if (_friends[indexes[i]].length < 12) {
+    if (!_friends[indexes[i]].hasOwnProperty("vertices") ||
+        !_friends[indexes[i]].hasOwnProperty("name") ||
+        _friends[indexes[i]].vertices.length < 12) {
       delete friends[indexes[i]];
       removeFriendDom(indexes[i]);
     }
@@ -232,17 +249,27 @@ function updateFriends(_friends) {
       if (friends[indexes[i]] === undefined) {
         friends[indexes[i]] = {};
       }
-      friends[indexes[i]].vertices = Vertex.multiplyMatrix(_friends[indexes[i]], BOX_SIZE);
+      friends[indexes[i]].vertices = Vertex.multiplyMatrix(_friends[indexes[i]].vertices, BOX_SIZE);
+      var domSetNeeded = false;
       if (friends[indexes[i]].color === undefined) {
+        domSetNeeded = true;
         friends[indexes[i]].color = Math.floor(Math.random()*COLORS.length);
       }
-      setFriendDom(indexes[i]);
+      if (friends[indexes[i]].name === undefined ||
+          friends[indexes[i]].name != _friends[indexes[i]].name) {
+        domSetNeeded = true;
+        friends[indexes[i]].name = _friends[indexes[i]].name;
+      }
+      if (domSetNeeded) {
+        setFriendDom(indexes[i]);
+      }
     }
   }
 }
 
 function setFriendDom(index) {
-  if (document.getElementById("friend" + index) === null) {
+  var friendDom = document.getElementById("friend" + index);
+  if (friendDom === null) {
     var friendDiv = document.createElement("div");
     friendDiv.id = "friend" + index;
     var colorDiv = document.createElement("div");
@@ -254,8 +281,17 @@ function setFriendDom(index) {
     friendDiv.appendChild(scoreDiv);
     var nameDiv = document.createElement("div");
     nameDiv.className = "name";
+    nameDiv.innerHTML = (friends[index].name.length > 0) ? friends[index].name : "Noname";
     friendDiv.appendChild(nameDiv);
     players.appendChild(friendDiv);
+  }
+  else {
+    for (var i = 0; i < friendDom.childNodes.length; i++) {
+      if (friendDom.childNodes[i].className == "name") {
+        friendDom.childNodes[i].innerHTML = (friends[index].name.length > 0) ? friends[index].name : "Noname";
+        break;
+      }
+    }
   }
 }
 
@@ -267,6 +303,19 @@ function removeFriendDom(index) {
 }
 
 // ------------------------------------------------------------------------ GAME
+function loadGame() {
+  gs = GAME_STATE.loading;
+  playerNameDiv.setAttribute("readonly", true);
+  play.style.display = "none";
+  loading.style.display = "block";
+  if (local) {
+    setWebSocket();
+  }
+  else {
+    socket.send(JSON.stringify({get:"init"}));
+  }
+}
+
 var gameLoop;
 function startGame() {
   setPlayerDom();
@@ -310,6 +359,7 @@ function startGame() {
 
 function stopGame() {
   gs = GAME_STATE.over;
+  playerNameDiv.setAttribute("readonly", false);
   if (!local) {
     socket.send(JSON.stringify({status:gs}));
   }
@@ -323,20 +373,9 @@ function stopGame() {
   showMenu();
 }
 
-function loadGame() {
-  gs = GAME_STATE.loading;
-  play.style.display = "none";
-  loading.style.display = "block";
-  if (local) {
-    setWebSocket();
-  }
-  else {
-    socket.send(JSON.stringify({get:"init"}));
-  }
-}
-
 // ------------------------------------------------------------------------ MENU
 function showMenu() {
+  gs = GAME_STATE.menu;
   menu.style.display = "table-cell";
   enemies = [];
   for (var i=0; i<((BOX_NB_X > BOX_NB_Y) ? BOX_NB_X*2 : BOX_NB_Y*2); i++) {
@@ -350,6 +389,8 @@ function showSettings() {
   if (colorDiv !== null) {
     colorDiv.style.backgroundColor = "rgb(" + COLORS[playerColor][0] + "," + COLORS[playerColor][1] + "," + COLORS[playerColor][2] + ")";
   }
+  playerNameDiv.removeAttribute("readonly");
+  playerNameDiv.value = playerName;
 }
 
 // =============================================================================
@@ -368,10 +409,15 @@ window.addEventListener("keydown", function (event) {
 }, true);
 
 window.addEventListener("keyup", function (event) {
-  if (event.defaultPrevented || gs != GAME_STATE.ingame) {
-    return;
+  if (gs == GAME_STATE.menu) {
+    testPlayerName();
+    if (event.keyCode == 13) {
+      loadGame();
+    }
   }
-  AbstractViewport.playerEvent(event);
+  else if (gs == GAME_STATE.ingame) {
+    AbstractViewport.playerEvent(event);
+  }
   event.preventDefault();
 }, true);
 
