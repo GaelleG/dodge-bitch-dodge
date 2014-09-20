@@ -230,22 +230,9 @@ function updateFriends(_friends) {
     return;
   }
   var indexes = Object.keys(_friends);
-  for (var index in friends) {
-    if(friends.hasOwnProperty(index) && indexes.indexOf(index) == -1){
-      delete friends[index];
-      removeFriendDom(index);
-    }
-    else if (!friends[index].hasOwnProperty("vertices") ||
-      !friends[index].hasOwnProperty("name") ||
-      friends[index].vertices.length < 12) {
-      delete friends[index];
-      removeFriendDom(index);
-    }
-  }
   for (var i=0; i<indexes.length; i++) {
-    if (!_friends[indexes[i]].hasOwnProperty("vertices") ||
-        !_friends[indexes[i]].hasOwnProperty("name") ||
-        _friends[indexes[i]].vertices.length < 12) {
+    if ((_friends[indexes[i]].hasOwnProperty("status") && _friends[indexes[i]].status == GAME_STATE.over) ||
+        ((friends[indexes[i]] === undefined || friends[indexes[i]].vertices === undefined) && !_friends[indexes[i]].hasOwnProperty("vertices"))) {
       delete friends[indexes[i]];
       removeFriendDom(indexes[i]);
     }
@@ -253,30 +240,31 @@ function updateFriends(_friends) {
       if (friends[indexes[i]] === undefined) {
         friends[indexes[i]] = {};
       }
-      friends[indexes[i]].vertices = Vertex.multiplyMatrix(_friends[indexes[i]].vertices, BOX_SIZE);
-      var domSetNeeded = false;
+      if (_friends[indexes[i]].hasOwnProperty("vertices")) {
+        friends[indexes[i]].vertices = Vertex.multiplyMatrix(_friends[indexes[i]].vertices, BOX_SIZE);
+      }
+      var domSetNeeded = [];
       if (friends[indexes[i]].color === undefined) {
-        domSetNeeded = true;
+        domSetNeeded.push("color");
         friends[indexes[i]].color = Math.floor(Math.random()*COLORS.length);
       }
-      if (friends[indexes[i]].name === undefined ||
-          friends[indexes[i]].name != _friends[indexes[i]].name) {
-        domSetNeeded = true;
+      if (_friends[indexes[i]].hasOwnProperty("name")) {
+        domSetNeeded.push("name");
         friends[indexes[i]].name = _friends[indexes[i]].name;
       }
-      if (friends[indexes[i]].score === undefined ||
-        friends[indexes[i]].score != _friends[indexes[i]].score) {
-        domSetNeeded = true;
+      if (_friends[indexes[i]].hasOwnProperty("score")) {
+        domSetNeeded.push("score");
         friends[indexes[i]].score = _friends[indexes[i]].score;
       }
-      if (domSetNeeded) {
-        setFriendDom(indexes[i]);
-      }
+      setFriendDom(indexes[i], domSetNeeded);
     }
   }
 }
 
-function setFriendDom(index) {
+function setFriendDom(index, domSetNeeded) {
+  if (domSetNeeded === undefined || domSetNeeded.length === 0) {
+    return;
+  }
   var friendDom = document.getElementById("friend" + index);
   if (friendDom === null) {
     var friendDiv = document.createElement("div");
@@ -291,16 +279,16 @@ function setFriendDom(index) {
     friendDiv.appendChild(scoreDiv);
     var nameDiv = document.createElement("div");
     nameDiv.className = "name";
-    nameDiv.innerHTML = (friends[index].name.length > 0) ? friends[index].name : "Noname";
+    nameDiv.innerHTML = (friends[index].name !== undefined && friends[index].name.length > 0) ? friends[index].name : "Noname";
     friendDiv.appendChild(nameDiv);
     players.appendChild(friendDiv);
   }
   else {
     for (var i = 0; i < friendDom.childNodes.length; i++) {
-      if (friendDom.childNodes[i].className == "name") {
+      if (domSetNeeded.indexOf("name") > -1 && friendDom.childNodes[i].className == "name") {
         friendDom.childNodes[i].innerHTML = (friends[index].name.length > 0) ? friends[index].name : "Noname";
       }
-      if (friendDom.childNodes[i].className == "score") {
+      if (domSetNeeded.indexOf("score") > -1 && friendDom.childNodes[i].className == "score") {
         friendDom.childNodes[i].innerHTML = friends[index].score;
       }
     }

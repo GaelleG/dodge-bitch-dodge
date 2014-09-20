@@ -455,32 +455,31 @@ wss.on('connection', function(ws) {
   clients.push(client);
   ws.on('message', function(message) {
     var json = JSON.parse(message);
-    var broadcastPlayerNeeded = false;
+    var toBroadcast = {};
+    toBroadcast[index] = {};
     if (json.player !== undefined) {
       clients[index].vertices = json.player;
-      broadcastPlayerNeeded = true;
+      toBroadcast[index].vertices = clients[index].vertices;
     }
     if (json.playerName !== undefined) {
       clients[index].name = json.playerName;
-      broadcastPlayerNeeded = true;
+      toBroadcast[index].name = clients[index].name;
     }
     if (json.status !== undefined) {
       if (json.status == GAME_STATE.ingame) {
         clients[index].status = GAME_STATE.ingame;
-        broadcastPlayerNeeded = true;
+        toBroadcast[index].status = clients[index].status;
       }
       else if (json.status == GAME_STATE.over) {
         clients[index].status = GAME_STATE.over;
-        broadcastPlayerNeeded = true;
+        toBroadcast[index].status = clients[index].status;
       }
     }
     if (json.score !== undefined) {
       clients[index].score = json.score;
-      broadcastPlayerNeeded = true;
+      toBroadcast[index].score = clients[index].score;
     }
-    if (broadcastPlayerNeeded) {
-      broadcastPlayer(index);
-    }
+    broadcastPlayer(index, toBroadcast);
     if (json.get !== undefined) {
       if (json.get == "init") {
         ws.send(JSON.stringify({
@@ -521,9 +520,14 @@ function broadcastNewEnemy() {
   }));
 }
 
-function broadcastPlayer(index) {
-  for(var i in clients) {
-    clients[i].connection.send(JSON.stringify({friends: getFriends(i)}));
+function broadcastPlayer(index, toBroadcast) {
+  if (toBroadcast.length === 0 || toBroadcast[index] === undefined || toBroadcast[index].length === 0) {
+    return;
+  }
+  for (var i in clients) {
+    if (index != i) {
+      clients[i].connection.send(JSON.stringify({friends: toBroadcast}));
+    }
   }
 }
 
