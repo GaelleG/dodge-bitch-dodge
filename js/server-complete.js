@@ -441,6 +441,7 @@ function Client(ws) {
   this.vertices = [];
   this.status = GAME_STATE.ingame;
   this.name = "";
+  this.score = 0;
 }
 
 // =============================================================================
@@ -472,6 +473,10 @@ wss.on('connection', function(ws) {
         clients[index].status = GAME_STATE.over;
         broadcastPlayerNeeded = true;
       }
+    }
+    if (json.score !== undefined) {
+      clients[index].score = json.score;
+      broadcastPlayerNeeded = true;
     }
     if (broadcastPlayerNeeded) {
       broadcastPlayer(index);
@@ -527,7 +532,7 @@ function getFriends(index) {
   var friends = {};
   for (var i in clients) {
     if (i != index) {
-      friends[i] = (clients[i].status == GAME_STATE.ingame) ? {vertices:clients[i].vertices, name:clients[i].name} : {};
+      friends[i] = (clients[i].status == GAME_STATE.ingame) ? {vertices:clients[i].vertices, name:clients[i].name, score:clients[i].score} : {};
     }
   }
   return friends;

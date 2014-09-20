@@ -64,6 +64,8 @@ var gs = -1;
 var local = true;
 var socket = null;
 var socketObject = {};
+var time = 0;
+var score = 0;
 
 // =============================================================================
 //                                 GAME LOADING
@@ -170,6 +172,8 @@ function setPlayerDom() {
     playerScore.appendChild(colorDiv);
     var scoreDiv = document.createElement("div");
     scoreDiv.className = "score";
+    scoreDiv.id = "score";
+    scoreDiv.innerHTML = "0";
     playerScore.appendChild(scoreDiv);
     var nameDiv = document.createElement("div");
     nameDiv.className = "name";
@@ -260,6 +264,11 @@ function updateFriends(_friends) {
         domSetNeeded = true;
         friends[indexes[i]].name = _friends[indexes[i]].name;
       }
+      if (friends[indexes[i]].score === undefined ||
+        friends[indexes[i]].score != _friends[indexes[i]].score) {
+        domSetNeeded = true;
+        friends[indexes[i]].score = _friends[indexes[i]].score;
+      }
       if (domSetNeeded) {
         setFriendDom(indexes[i]);
       }
@@ -278,6 +287,7 @@ function setFriendDom(index) {
     friendDiv.appendChild(colorDiv);
     var scoreDiv = document.createElement("div");
     scoreDiv.className = "score";
+    scoreDiv.innerHTML = 0;
     friendDiv.appendChild(scoreDiv);
     var nameDiv = document.createElement("div");
     nameDiv.className = "name";
@@ -289,7 +299,9 @@ function setFriendDom(index) {
     for (var i = 0; i < friendDom.childNodes.length; i++) {
       if (friendDom.childNodes[i].className == "name") {
         friendDom.childNodes[i].innerHTML = (friends[index].name.length > 0) ? friends[index].name : "Noname";
-        break;
+      }
+      if (friendDom.childNodes[i].className == "score") {
+        friendDom.childNodes[i].innerHTML = friends[index].score;
       }
     }
   }
@@ -328,6 +340,7 @@ function startGame() {
   menu.style.display = "none";
   setPlayer();
   playerInvincibility = PLAYER_INVINCIBILITY;
+  initScore();
   var delta = 0;
   var oldTime = Date.now();
   var newTime = Date.now();
@@ -349,9 +362,10 @@ function startGame() {
       if (AbstractViewport.playerCollisionWithEnemies() && playerInvincibility <= 0) {
         stopGame();
         if (!local) {
-          socket.send(JSON.stringify({status: "over"}));
+          socket.send(JSON.stringify({status:gs}));
         }
       }
+      updateScore(delta);
     },
     10
   );
@@ -371,6 +385,27 @@ function stopGame() {
     players.removeChild(players.firstChild);
   }
   showMenu();
+}
+
+// ----------------------------------------------------------------------- SCORE
+function initScore() {
+  time = 0;
+  score = 0;
+}
+
+function updateScore(delta) {
+  time += delta;
+  var prevScore = score;
+  score = Math.floor(time/1000);
+  if (score != prevScore) {
+    var scoreDiv = document.getElementById("score");
+    if (scoreDiv !== null) {
+      scoreDiv.innerHTML = new Intl.NumberFormat("en-EN").format(score);
+      if (!local) {
+        socket.send(JSON.stringify({score:score}));
+      }
+    }
+  }
 }
 
 // ------------------------------------------------------------------------ MENU
