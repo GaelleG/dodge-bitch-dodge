@@ -142,12 +142,13 @@ function drawScene() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   var i=0;
 
-  // enemies
-  currentProgram = fragmentProgramEnemy;
-  gl.useProgram(currentProgram);
   perspectiveMatrix = makeOrtho(0, canvas.width, canvas.height, 0, 0.1, 100);
   loadIdentity();
   mvTranslate([-0.0, 0.0, -6.0]);
+
+  // enemies
+  currentProgram = fragmentProgramEnemy;
+  gl.useProgram(currentProgram);
   setMatrixUniforms();
   vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
   for (i=0; i<enemyVerticeBuffers.length; i++) {
@@ -160,9 +161,6 @@ function drawScene() {
   // friends
   currentProgram = fragmentProgramFriend;
   gl.useProgram(currentProgram);
-  perspectiveMatrix = makeOrtho(0, canvas.width, canvas.height, 0, 0.1, 100);
-  loadIdentity();
-  mvTranslate([-0.0, 0.0, -6.0]);
   setMatrixUniforms();
   vertexColorAttribute = gl.getAttribLocation(currentProgram, "aVertexColor");
   vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
@@ -180,9 +178,6 @@ function drawScene() {
   // player
   currentProgram = fragmentProgramPlayer;
   gl.useProgram(currentProgram);
-  perspectiveMatrix = makeOrtho(0, canvas.width, canvas.height, 0, 0.1, 100);
-  loadIdentity();
-  mvTranslate([-0.0, 0.0, -6.0]);
   setMatrixUniforms();
   vertexColorAttribute = gl.getAttribLocation(currentProgram, "aVertexColor");
   vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
