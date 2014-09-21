@@ -298,7 +298,7 @@ function setFriendDom(index, domSetNeeded) {
 function removeFriendDom(index) {
   var friendDom = document.getElementById("friend" + index);
   if (friendDom !== null) {
-    friendDom.remove();
+    friendDom.parentNode.removeChild(friendDom);
   }
 }
 
