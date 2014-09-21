@@ -405,6 +405,7 @@ function showMenu() {
     enemies.push(Vertex.getRandomVertice(0, 0, BOX_NB_X, BOX_NB_Y, BOX_SIZE, AbstractViewport.ENEMY_MAX_SIZE, {x:0,y:0}));
   }
   showSettings();
+  playerNameDiv.focus();
 }
 
 function showSettings() {
