@@ -229,34 +229,33 @@ function updateFriends(_friends) {
   if (gs != GAME_STATE.ingame) {
     return;
   }
-  var indexes = Object.keys(_friends);
-  for (var i=0; i<indexes.length; i++) {
-    if ((_friends[indexes[i]].hasOwnProperty("status") && _friends[indexes[i]].status == GAME_STATE.over) ||
-        ((friends[indexes[i]] === undefined || friends[indexes[i]].vertices === undefined) && !_friends[indexes[i]].hasOwnProperty("vertices"))) {
-      delete friends[indexes[i]];
-      removeFriendDom(indexes[i]);
+  for (var index in _friends) {
+    if ((_friends[index].hasOwnProperty("status") && _friends[index].status == GAME_STATE.over) ||
+        ((friends[index] === undefined || friends[index].vertices === undefined) && !_friends[index].hasOwnProperty("vertices"))) {
+      delete friends[index];
+      removeFriendDom(index);
     }
     else {
-      if (friends[indexes[i]] === undefined) {
-        friends[indexes[i]] = {};
+      if (friends[index] === undefined) {
+        friends[index] = {};
       }
-      if (_friends[indexes[i]].hasOwnProperty("vertices")) {
-        friends[indexes[i]].vertices = Vertex.multiplyMatrix(_friends[indexes[i]].vertices, BOX_SIZE);
+      if (_friends[index].hasOwnProperty("vertices")) {
+        friends[index].vertices = Vertex.multiplyMatrix(_friends[index].vertices, BOX_SIZE);
       }
       var domSetNeeded = [];
-      if (friends[indexes[i]].color === undefined) {
+      if (friends[index].color === undefined) {
         domSetNeeded.push("color");
-        friends[indexes[i]].color = Math.floor(Math.random()*COLORS.length);
+        friends[index].color = Math.floor(Math.random()*COLORS.length);
       }
-      if (_friends[indexes[i]].hasOwnProperty("name")) {
+      if (_friends[index].hasOwnProperty("name")) {
         domSetNeeded.push("name");
-        friends[indexes[i]].name = _friends[indexes[i]].name;
+        friends[index].name = _friends[index].name;
       }
-      if (_friends[indexes[i]].hasOwnProperty("score")) {
+      if (_friends[index].hasOwnProperty("score")) {
         domSetNeeded.push("score");
-        friends[indexes[i]].score = _friends[indexes[i]].score;
+        friends[index].score = _friends[index].score;
       }
-      setFriendDom(indexes[i], domSetNeeded);
+      setFriendDom(index, domSetNeeded);
     }
   }
 }

@@ -17,7 +17,7 @@ var GAME_STATE = {
 // ---------------------------------------------------------------------- GLOBAL
 var WebSocketServer = require('ws').Server;
 var wss = new WebSocketServer({port: 1337, origin: 'http://127.0.0.1'});
-var clients = [];
+var clients = {};
 
 // ---------------------------------------------------------------------- CLIENT
 function Client(ws) {
@@ -34,9 +34,12 @@ function Client(ws) {
 
 // ------------------------------------------------------------------ CONNECTION
 wss.on('connection', function(ws) {
-  var index = clients.length;
+  var index = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+    return v.toString(16);
+  });
   var client = new Client(ws);
-  clients.push(client);
+  clients[index] = client;
   ws.on('message', function(message) {
     var json = JSON.parse(message);
     var toBroadcast = {};
@@ -75,7 +78,11 @@ wss.on('connection', function(ws) {
     }
   });
   ws.on('close', function() {
-    clients.splice(index, 1);
+    var toBroadcast = {};
+    toBroadcast[index] = {};
+    toBroadcast[index].status = GAME_STATE.over;
+    broadcastPlayer(index, toBroadcast);
+    delete clients[index];
   });
 });
 
