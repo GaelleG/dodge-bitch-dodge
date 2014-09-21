@@ -275,7 +275,7 @@ function setFriendDom(index, domSetNeeded) {
     friendDiv.appendChild(colorDiv);
     var scoreDiv = document.createElement("div");
     scoreDiv.className = "score";
-    scoreDiv.innerHTML = 0;
+    scoreDiv.innerHTML = (friends[index].score === undefined) ? 0 : friends[index].score;
     friendDiv.appendChild(scoreDiv);
     var nameDiv = document.createElement("div");
     nameDiv.className = "name";
