@@ -49,7 +49,6 @@ var COLORS = [
 var enemies = [];
 var player = [];
 var playerInvincibility = 0;
-var playerScore;
 var playerColor = Math.floor(Math.random()*COLORS.length);
 var playerName = "";
 var friends = {};
@@ -164,8 +163,9 @@ function movePlayer(delta) {
 
 function setPlayerDom() {
   if (document.getElementById("me") === null) {
-    playerScore = document.createElement("div");
+    var playerScore = document.createElement("div");
     playerScore.id = "me";
+    playerScore.setAttribute("score", score);
     var colorDiv = document.createElement("div");
     colorDiv.className = "color";
     colorDiv.style.backgroundColor = "rgb(" + COLORS[playerColor][0] + "," + COLORS[playerColor][1] + "," + COLORS[playerColor][2] + ")";
@@ -180,6 +180,16 @@ function setPlayerDom() {
     nameDiv.innerHTML = (playerName.length > 0) ? playerName : "Noname";
     playerScore.appendChild(nameDiv);
     players.appendChild(playerScore);
+  }
+}
+
+function updatePlayerDom() {
+  var meDiv = document.getElementById("me");
+  if (meDiv === null) return;
+  var nextDom = meDiv.nextSibling;
+  if (nextDom === null) return;
+  if (parseInt(meDiv.getAttribute("score")) <= parseInt(nextDom.getAttribute("score")))  {
+    players.insertBefore(nextDom, meDiv);
   }
 }
 
@@ -265,9 +275,11 @@ function setFriendDom(index, domSetNeeded) {
     return;
   }
   var friendDom = document.getElementById("friend" + index);
+  var i=0;
   if (friendDom === null) {
     var friendDiv = document.createElement("div");
     friendDiv.id = "friend" + index;
+    friendDiv.setAttribute("score", (friends[index].score === undefined) ? 0 : friends[index].score);
     var colorDiv = document.createElement("div");
     colorDiv.className = "color";
     colorDiv.style.backgroundColor = "rgba(" + COLORS[friends[index].color][0] + "," + COLORS[friends[index].color][1] + "," + COLORS[friends[index].color][2] + "," + COLORS[friends[index].color][3] + ")";
@@ -280,17 +292,40 @@ function setFriendDom(index, domSetNeeded) {
     nameDiv.className = "name";
     nameDiv.innerHTML = (friends[index].name !== undefined && friends[index].name.length > 0) ? friends[index].name : "Noname";
     friendDiv.appendChild(nameDiv);
-    players.appendChild(friendDiv);
+    var inserted = false;
+    for (i=0; i<players.childNodes.length; i++) {
+      var domScore = (players.childNodes[i].id == "me") ? score : friends[players.childNodes[i].id.substring(("friend").length, players.childNodes[i].id.length)].score;
+      if (domScore < friends[index].score) {
+        players.insertBefore(friendDiv, players.childNodes[i]);
+        inserted = true;
+        break;
+      }
+    }
+    if (!inserted) {
+      players.appendChild(friendDiv);
+    }
   }
   else {
-    for (var i = 0; i < friendDom.childNodes.length; i++) {
+    for (i=0; i<friendDom.childNodes.length; i++) {
       if (domSetNeeded.indexOf("name") > -1 && friendDom.childNodes[i].className == "name") {
         friendDom.childNodes[i].innerHTML = (friends[index].name.length > 0) ? friends[index].name : "Noname";
       }
       if (domSetNeeded.indexOf("score") > -1 && friendDom.childNodes[i].className == "score") {
         friendDom.childNodes[i].innerHTML = friends[index].score;
+        friendDom.setAttribute("score", friends[index].score);
+        updateFriendDom(index);
       }
     }
+  }
+}
+
+function updateFriendDom(index) {
+  var friendDiv = document.getElementById("friend"+index);
+  if (friendDiv === null) return;
+  var nextDom = friendDiv.nextSibling;
+  if (nextDom === null) return;
+  if (parseInt(friendDiv.getAttribute("score")) <= parseInt(nextDom.getAttribute("score")))  {
+    players.insertBefore(nextDom, friendDiv);
   }
 }
 
@@ -348,9 +383,6 @@ function startGame() {
       playerInvincibility -= delta;
       if (AbstractViewport.playerCollisionWithEnemies() && playerInvincibility <= 0) {
         stopGame();
-        if (!local) {
-          socket.send(JSON.stringify({status:gs}));
-        }
       }
       updateScore(delta);
     },
@@ -386,11 +418,13 @@ function updateScore(delta) {
   score = Math.floor(time/1000);
   if (score != prevScore) {
     var scoreDiv = document.getElementById("score");
+    document.getElementById("me").setAttribute("score", score);
     if (scoreDiv !== null) {
       scoreDiv.innerHTML = new Intl.NumberFormat("en-EN").format(score);
       if (!local) {
         socket.send(JSON.stringify({score:score}));
       }
+      updatePlayerDom();
     }
   }
 }
