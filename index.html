@@ -159,11 +159,56 @@
                 margin: 5px;
             }
             #color {
+                position: relative;
                 width: 46px;
                 height: 46px;
                 background-color: #fab;
                 margin-right: 10px;
                 float: left;
+                cursor: pointer;
+            }
+            #color:after {
+                content: "";
+                position: absolute;
+                top: 0px;
+                right: 0px;
+                border-style: solid;
+                border-top-color: rgba(255,255,255,0.7);
+                border-right-color: rgba(255,255,255,0.7);
+                border-bottom-color: transparent;
+                border-left-color: transparent;
+                border-width: 7px;
+            }
+            #color #colorslist {
+                display: none;
+                position: absolute;
+                left: 0px;
+                top: 46px;
+                width: 100%;
+            }
+            #color:hover #colorslist {
+                display: block;
+            }
+            #color #colorslist > div {
+                float: left;
+                width: 23px;
+                height: 23px;
+                font-size: 12px;
+                text-align: center;
+                cursor: pointer;
+            }
+            #color #colorslist > div.selected:after {
+                content: "";
+                width: 0px;
+                height: 0px;
+                display: block;
+                float: right;
+                border-style: solid;
+                border-top-color: rgba(255,255,255,0.7);
+                border-right-color: rgba(255,255,255,0.7);
+                border-bottom-color: transparent;
+                border-left-color: transparent;
+                border-width: 4px;
             }
             #name {
                 display: block;
@@ -217,7 +262,9 @@
                 <h1>dodge bitch dodge</h1>
                 <div id="settings">
                     <div>
-                        <div id="color"></div>
+                        <div id="color">
+                            <div id="colorslist"></div>
+                        </div>
                         <div>
                             <input id="name" type="text" placeholder="Name" maxlength="14" oninput="testPlayerName();"></input>
                             <div id="bestscore"></div>

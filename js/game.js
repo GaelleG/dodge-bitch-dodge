@@ -81,6 +81,7 @@ play = document.getElementById("play");
 loading = document.getElementById("loading");
 players = document.getElementById("players");
 playerNameDiv = document.getElementById("name");
+colorsDiv = document.getElementById("colorslist");
 
 // =============================================================================
 //                                   FUNCTIONS
@@ -196,6 +197,14 @@ function updatePlayerDom() {
 testPlayerName = function() {
   playerNameDiv.value = playerNameDiv.value.replace(/([^a-zA-Z0-9])/g,"");
   playerName = playerNameDiv.value;
+};
+
+setPlayerColor = function(c) {
+  if (c === undefined || c >= COLORS.length || c == playerColor) {
+    return;
+  }
+  playerColor = c;
+  setColorSelector();
 };
 
 // --------------------------------------------------------------------- ENEMIES
@@ -442,12 +451,30 @@ function showMenu() {
 }
 
 function showSettings() {
+  setColorSelector();
+  playerNameDiv.removeAttribute("readonly");
+  playerNameDiv.value = playerName;
+}
+
+function setColorSelector() {
+  var n = 0;
   var colorDiv = document.getElementById("color");
   if (colorDiv !== null) {
     colorDiv.style.backgroundColor = "rgb(" + COLORS[playerColor][0] + "," + COLORS[playerColor][1] + "," + COLORS[playerColor][2] + ")";
   }
-  playerNameDiv.removeAttribute("readonly");
-  playerNameDiv.value = playerName;
+  while (colorsDiv.firstChild) {
+    colorsDiv.removeChild(colorsDiv.firstChild);
+  }
+  for (var c in COLORS) {
+    var div = document.createElement("div");
+    div.style.backgroundColor = "rgb(" + COLORS[c][0] + "," + COLORS[c][1] + "," + COLORS[c][2] + ")";
+    div.setAttribute("onmouseover", "setPlayerColor("+c+")");
+    if (c == playerColor) {
+      div.className = "selected";
+    }
+    colorsDiv.appendChild(div);
+
+  }
 }
 
 // =============================================================================
