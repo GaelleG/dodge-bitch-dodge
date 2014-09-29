@@ -59,6 +59,7 @@ var menu;
 var play;
 var loading;
 var playerNameDiv;
+var playerColorDiv;
 var testPlayerName;
 var players;
 var gs = -1;
@@ -83,6 +84,7 @@ play = document.getElementById("play");
 loading = document.getElementById("loading");
 players = document.getElementById("players");
 playerNameDiv = document.getElementById("name");
+playerColorDiv = document.getElementById("color");
 colorsDiv = document.getElementById("colorslist");
 
 // =============================================================================
@@ -412,7 +414,6 @@ function loadGame() {
   playerNameDiv.setAttribute("readonly", true);
   play.style.display = "none";
   loading.style.display = "block";
-  var playerColorDiv = document.getElementById("color");
   if (playerColorDiv !== null) {
     playerColorDiv.className = "";
   }
@@ -520,10 +521,9 @@ function showSettings() {
 
 function setColorSelector() {
   var n = 0;
-  var colorDiv = document.getElementById("color");
-  if (colorDiv !== null) {
-    colorDiv.style.backgroundColor = "rgb(" + COLORS[playerColor][0] + "," + COLORS[playerColor][1] + "," + COLORS[playerColor][2] + ")";
-    colorDiv.className = "editable";
+  if (playerColorDiv !== null) {
+    playerColorDiv.style.backgroundColor = "rgb(" + COLORS[playerColor][0] + "," + COLORS[playerColor][1] + "," + COLORS[playerColor][2] + ")";
+    playerColorDiv.className = "editable";
   }
   while (colorsDiv.firstChild) {
     colorsDiv.removeChild(colorsDiv.firstChild);
@@ -574,6 +574,18 @@ window.addEventListener("resize", function() {
 
 play.addEventListener("click", function (event) {
   loadGame();
+});
+
+playerColorDiv.addEventListener("mouseover", function() {
+  colorsDiv.style.display = "block";
+});
+
+playerColorDiv.addEventListener("mouseout", function() {
+  colorsDiv.style.display = "none";
+});
+
+colorsDiv.addEventListener("mouseup", function(event) {
+  this.style.display = "none";
 });
 
 }
