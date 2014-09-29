@@ -351,6 +351,10 @@ function loadGame() {
   playerNameDiv.setAttribute("readonly", true);
   play.style.display = "none";
   loading.style.display = "block";
+  var playerColorDiv = document.getElementById("color");
+  if (playerColorDiv !== null) {
+    playerColorDiv.className = "";
+  }
   if (local) {
     setWebSocket();
   }
@@ -447,13 +451,13 @@ function showMenu() {
     enemies.push(Vertex.getRandomVertice(0, 0, BOX_NB_X, BOX_NB_Y, BOX_SIZE, AbstractViewport.ENEMY_MAX_SIZE, {x:0,y:0}));
   }
   showSettings();
-  playerNameDiv.focus();
 }
 
 function showSettings() {
   setColorSelector();
   playerNameDiv.removeAttribute("readonly");
   playerNameDiv.value = playerName;
+  playerNameDiv.focus();
 }
 
 function setColorSelector() {
@@ -461,6 +465,7 @@ function setColorSelector() {
   var colorDiv = document.getElementById("color");
   if (colorDiv !== null) {
     colorDiv.style.backgroundColor = "rgb(" + COLORS[playerColor][0] + "," + COLORS[playerColor][1] + "," + COLORS[playerColor][2] + ")";
+    colorDiv.className = "editable";
   }
   while (colorsDiv.firstChild) {
     colorsDiv.removeChild(colorsDiv.firstChild);
@@ -473,7 +478,6 @@ function setColorSelector() {
       div.className = "selected";
     }
     colorsDiv.appendChild(div);
-
   }
 }
 

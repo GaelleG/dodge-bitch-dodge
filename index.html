@@ -174,9 +174,11 @@
                 background-color: #fab;
                 margin-right: 10px;
                 float: left;
+            }
+            #color.editable {
                 cursor: pointer;
             }
-            #color:after {
+            #color.editable:after {
                 content: "";
                 position: absolute;
                 top: 0px;
@@ -195,7 +197,7 @@
                 top: 46px;
                 width: 100%;
             }
-            #color:hover #colorslist {
+            #color.editable:hover #colorslist {
                 display: block;
             }
             #color #colorslist > div {
@@ -271,7 +273,7 @@
                 <h1>dodge bitch dodge</h1>
                 <div id="settings">
                     <div>
-                        <div id="color">
+                        <div id="color" class="editable">
                             <div id="colorslist"></div>
                         </div>
                         <div>
