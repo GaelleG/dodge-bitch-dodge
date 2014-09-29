@@ -142,8 +142,10 @@ function setPlayer() {
   player = Vertex.multiplyMatrix(AbstractViewport.player, BOX_SIZE);
   if (!local) {
     socket.send(JSON.stringify({
+      status:gs,
       player: AbstractViewport.player,
-      playerName: playerName
+      playerName: playerName,
+      playerColor: playerColor
     }));
   }
 }
@@ -262,7 +264,17 @@ function updateFriends(_friends) {
         friends[index].vertices = Vertex.multiplyMatrix(_friends[index].vertices, BOX_SIZE);
       }
       var domSetNeeded = [];
-      if (friends[index].color === undefined) {
+      if (_friends[index].hasOwnProperty("color") || friends[index].color === undefined) {
+        domSetNeeded.push("color");
+        _friends[index].color = parseInt(_friends[index].color);
+        if (!isNaN(_friends[index].color) && _friends[index].color >= 0 && _friends[index].color < COLORS.length) {
+          friends[index].color = _friends[index].color;
+        }
+        else {
+          friends[index].color = Math.floor(Math.random()*COLORS.length);
+        }
+      }
+      else if (friends[index].color === undefined) {
         domSetNeeded.push("color");
         friends[index].color = Math.floor(Math.random()*COLORS.length);
       }
@@ -367,9 +379,6 @@ var gameLoop;
 function startGame() {
   setPlayerDom();
   gs = GAME_STATE.ingame;
-  if (!local) {
-    socket.send(JSON.stringify({status:gs}));
-  }
   play.style.display = "inline";
   loading.style.display = "none";
   menu.style.display = "none";

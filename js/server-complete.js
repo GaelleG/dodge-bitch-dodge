@@ -468,6 +468,10 @@ wss.on('connection', function(ws) {
       clients[index].name = json.playerName;
       toBroadcast[index].name = clients[index].name;
     }
+    if (json.playerColor !== undefined) {
+      clients[index].color = json.playerColor;
+      toBroadcast[index].color = clients[index].color;
+    }
     if (json.status !== undefined) {
       if (json.status == GAME_STATE.ingame) {
         clients[index].status = GAME_STATE.ingame;
@@ -543,7 +547,7 @@ function getFriends(index) {
   var friends = {};
   for (var i in clients) {
     if (i != index) {
-      friends[i] = (clients[i].status == GAME_STATE.ingame) ? {vertices:clients[i].vertices, name:clients[i].name, score:clients[i].score} : {};
+      friends[i] = (clients[i].status == GAME_STATE.ingame) ? {vertices:clients[i].vertices, name:clients[i].name, score:clients[i].score, color:clients[i].color} : {};
     }
   }
   return friends;
