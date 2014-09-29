@@ -577,7 +577,9 @@ play.addEventListener("click", function (event) {
 });
 
 playerColorDiv.addEventListener("mouseover", function() {
-  colorsDiv.style.display = "block";
+  if (playerColorDiv.className == "editable") {
+    colorsDiv.style.display = "block";
+  }
 });
 
 playerColorDiv.addEventListener("mouseout", function() {
