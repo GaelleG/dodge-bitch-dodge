@@ -52,6 +52,8 @@ var playerInvincibility = 0;
 var playerColor = Math.floor(Math.random()*COLORS.length);
 var playerName = "";
 var friends = {};
+var friendsIndexes = [];
+var friendsMaxDisplayedNb = -1;
 var canvas;
 var menu;
 var play;
@@ -183,16 +185,27 @@ function setPlayerDom() {
     nameDiv.innerHTML = (playerName.length > 0) ? playerName : "Noname";
     playerScore.appendChild(nameDiv);
     players.appendChild(playerScore);
+    setFriendsMaxDispayedNb();
   }
 }
 
 function updatePlayerDom() {
+  if (Object.keys(friends).length === 0) {
+    return;
+  }
   var meDiv = document.getElementById("me");
   if (meDiv === null) return;
   var nextDom = meDiv.nextSibling;
-  if (nextDom === null) return;
-  if (parseInt(meDiv.getAttribute("score")) <= parseInt(nextDom.getAttribute("score")))  {
-    players.insertBefore(nextDom, meDiv);
+  if (nextDom !== null) {
+    if (parseInt(meDiv.getAttribute("score")) <= parseInt(nextDom.getAttribute("score")))  {
+      players.insertBefore(nextDom, meDiv);
+    }
+  }
+  if (Array.prototype.indexOf.call(meDiv.parentNode.childNodes, meDiv) > friendsMaxDisplayedNb) {
+    meDiv.className = "not-ranked";
+  }
+  else {
+    meDiv.className = "";
   }
 }
 
@@ -285,10 +298,18 @@ function updateFriends(_friends) {
       if (_friends[index].hasOwnProperty("score")) {
         domSetNeeded.push("score");
         friends[index].score = _friends[index].score;
+        sortFriends();
       }
       setFriendDom(index, domSetNeeded);
     }
   }
+}
+
+function sortFriends() {
+  friendsIndexes = Object.keys(friends);
+  friendsIndexes.sort(function(a, b) {
+    return friends[b].score - friends[a].score;
+  });
 }
 
 function setFriendDom(index, domSetNeeded) {
@@ -297,7 +318,11 @@ function setFriendDom(index, domSetNeeded) {
   }
   var friendDom = document.getElementById("friend" + index);
   var i=0;
+  var playersListFull = (friends[index].score < getLowestVisibleScore() || friendsMaxDisplayedNb == -1);
   if (friendDom === null) {
+    if (playersListFull) {
+      return;
+    }
     var friendDiv = document.createElement("div");
     friendDiv.id = "friend" + index;
     friendDiv.setAttribute("score", (friends[index].score === undefined) ? 0 : friends[index].score);
@@ -327,6 +352,9 @@ function setFriendDom(index, domSetNeeded) {
     }
   }
   else {
+    if (playersListFull) {
+      removeFriendDom(index);
+    }
     for (i=0; i<friendDom.childNodes.length; i++) {
       if (domSetNeeded.indexOf("name") > -1 && friendDom.childNodes[i].className == "name") {
         friendDom.childNodes[i].innerHTML = (friends[index].name.length > 0) ? friends[index].name : "Noname";
@@ -355,6 +383,27 @@ function removeFriendDom(index) {
   if (friendDom !== null) {
     friendDom.parentNode.removeChild(friendDom);
   }
+}
+
+function setFriendsMaxDispayedNb() {
+  var playerScoreDiv = document.getElementById("me");
+  if (playerScoreDiv === null) {
+    friendsMaxDisplayedNb = -1;
+    return;
+  }
+  var listHeight = (window.innerHeight < window.innerWidth) ? window.innerHeight : window.innerHeight - CANVAS_HEIGHT;
+  var itemHeight = playerScoreDiv.clientHeight;
+  friendsMaxDisplayedNb = Math.floor(listHeight/itemHeight) - 1;
+}
+
+function getLowestVisibleScore() {
+  if (friendsIndexes[friendsMaxDisplayedNb] === undefined) {
+    return -1;
+  }
+  if (friends[friendsIndexes[friendsMaxDisplayedNb]].score === undefined) {
+    return -1;
+  }
+  return friends[friendsIndexes[friendsMaxDisplayedNb]].score;
 }
 
 // ------------------------------------------------------------------------ GAME
@@ -495,6 +544,7 @@ function setColorSelector() {
 // =============================================================================
 
 showMenu();
+setFriendsMaxDispayedNb();
 
 // ---------------------------------------------------------------------- EVENTS
 window.addEventListener("keydown", function (event) {
@@ -517,6 +567,10 @@ window.addEventListener("keyup", function (event) {
   }
   event.preventDefault();
 }, true);
+
+window.addEventListener("resize", function() {
+  setFriendsMaxDispayedNb();
+});
 
 play.addEventListener("click", function (event) {
   loadGame();
