@@ -7,6 +7,8 @@ Install
 `$ npm install -g grunt-cli`<br>
 `$ npm install`<br>
 `$ grunt`<br>
+During development<br>
+`$ grunt watch`<br>
 
 Run server
 ----------
