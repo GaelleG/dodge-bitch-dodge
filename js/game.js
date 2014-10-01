@@ -68,6 +68,12 @@ var socket = null;
 var socketObject = {};
 var time = 0;
 var score = 0;
+var bestScore = localStorage.getItem("dbd-bestscore");
+if (bestScore === null || isNaN(bestScore))
+  bestScore = 0;
+else
+  bestScore = parseInt(bestScore);
+var bestScoreDiv;
 
 // =============================================================================
 //                                 GAME LOADING
@@ -86,6 +92,7 @@ players = document.getElementById("players");
 playerNameDiv = document.getElementById("name");
 playerColorDiv = document.getElementById("color");
 colorsDiv = document.getElementById("colorslist");
+bestScoreDiv = document.getElementById("bestscore");
 
 // =============================================================================
 //                                   FUNCTIONS
@@ -498,6 +505,13 @@ function updateScore(delta) {
       }
       updatePlayerDom();
     }
+    if (score > bestScore) {
+      bestScore = score;
+      localStorage.setItem("dbd-bestscore", bestScore);
+      if (bestScoreDiv !== null) {
+        bestScoreDiv.innerHTML = bestScore;
+      }
+    }
   }
 }
 
@@ -517,6 +531,7 @@ function showSettings() {
   playerNameDiv.removeAttribute("readonly");
   playerNameDiv.value = playerName;
   playerNameDiv.focus();
+  bestScoreDiv.innerHTML = bestScore;
 }
 
 function setColorSelector() {
