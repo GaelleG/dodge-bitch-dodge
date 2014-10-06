@@ -50,7 +50,9 @@ var enemies = [];
 var player = [];
 var playerInvincibility = 0;
 var playerColor = Math.floor(Math.random()*COLORS.length);
-var playerName = "";
+var playerName = localStorage.getItem("dbd-name");
+if (playerName === null)
+  playerName = "";
 var friends = {};
 var friendsIndexes = [];
 var friendsMaxDisplayedNb = -1;
@@ -221,6 +223,7 @@ function updatePlayerDom() {
 testPlayerName = function() {
   playerNameDiv.value = playerNameDiv.value.replace(/([^a-zA-Z0-9])/g,"");
   playerName = playerNameDiv.value;
+  localStorage.setItem("dbd-name", playerName);
 };
 
 setPlayerColor = function(c) {

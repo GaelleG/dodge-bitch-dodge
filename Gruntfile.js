@@ -24,7 +24,14 @@ module.exports = function(grunt) {
           {
             expand: true,
             cwd: 'js/',
-            src: ['**/*.js'],
+            src: [
+              'vertex.js',
+              'abstract-viewport.js',
+              'game.js',
+              'webgl.js',
+              'server.js',
+              'server-complete.js'
+            ],
             dest: 'js/',
             ext: '.min.js',
             extDot: 'first'
