@@ -33,8 +33,41 @@ module.exports = function(grunt) {
       },
     },
     watch: {
-      files: ['**/*'],
-      tasks: ['concat', 'jshint', 'uglify'],
+      scripts: {
+        files: ['js/vertex.js', 'js/abstract-viewport.js', 'js/server.js'],
+        tasks: ['concat'],
+        options: {
+          interrupt: true,
+        },
+      },
+      scripts: {
+        files: [
+          'Gruntfile.js',
+          'js/vertex.js',
+          'js/abstract-viewport.js',
+          'js/game.js',
+          'js/webgl.js',
+          'js/server.js',
+          'js/server-complete.js',
+        ],
+        tasks: ['jshint'],
+        options: {
+          interrupt: true,
+        },
+      },
+      scripts: {
+        files: [
+          'js/vertex.js',
+          'js/abstract-viewport.js',
+          'js/game.js',
+          'js/webgl.js',
+          'js/server-complete.js',
+        ],
+        tasks: ['uglify'],
+        options: {
+          interrupt: true,
+        },
+      },
     }
   });
   grunt.loadNpmTasks('grunt-contrib-concat');
