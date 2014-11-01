@@ -40,14 +40,14 @@ module.exports = function(grunt) {
       },
     },
     watch: {
-      scripts: {
+      concat: {
         files: ['js/vertex.js', 'js/abstract-viewport.js', 'js/server.js'],
         tasks: ['concat'],
         options: {
           interrupt: true,
         },
       },
-      scripts: {
+      jshint: {
         files: [
           'Gruntfile.js',
           'js/vertex.js',
@@ -62,7 +62,7 @@ module.exports = function(grunt) {
           interrupt: true,
         },
       },
-      scripts: {
+      uglify: {
         files: [
           'js/vertex.js',
           'js/abstract-viewport.js',
