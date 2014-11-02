@@ -76,6 +76,7 @@ if (bestScore === null || isNaN(bestScore))
 else
   bestScore = parseInt(bestScore);
 var bestScoreDiv;
+var favicon;
 
 // =============================================================================
 //                                 GAME LOADING
@@ -95,6 +96,7 @@ playerNameDiv = document.getElementById("name");
 playerColorDiv = document.getElementById("color");
 colorsDiv = document.getElementById("colorslist");
 bestScoreDiv = document.getElementById("bestscore");
+favicon = document.getElementById("favicon");
 
 // =============================================================================
 //                                   FUNCTIONS
@@ -555,6 +557,7 @@ function setColorSelector() {
     }
     colorsDiv.appendChild(div);
   }
+  favicon.setAttribute("href", "img/"+playerColor+"-favicon.png");
 }
 
 // =============================================================================
